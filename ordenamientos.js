@@ -194,3 +194,175 @@ function mergeSort(input) {
         events
     };
 }
+
+function createEvent(type, data = {}) {
+    return {
+        type,
+        ...data
+    };
+}
+
+
+function gnomeSort(input) {
+
+    const array = [...input];
+    const events = [];
+
+    let index = 0;
+
+    while (index < array.length) {
+
+        if (index === 0) {
+            index++;
+            continue;
+        }
+
+        events.push(
+            createEvent("compare", {
+                indices: [index - 1, index]
+            })
+        );
+
+        if (array[index] >= array[index - 1]) {
+            index++;
+        } else {
+
+            [array[index], array[index - 1]] =
+                [array[index - 1], array[index]];
+
+            events.push(
+                createEvent("swap", {
+                    indices: [index - 1, index],
+                    values: [array[index - 1], array[index]]
+                })
+            );
+
+            index--;
+        }
+    }
+
+    events.push(
+        createEvent("finish", {
+            array: [...array]
+        })
+    );
+
+    return {
+        array,
+        events
+    };
+}
+
+
+function exchangeSort(input) {
+
+    const array = [...input];
+    const events = [];
+
+    for (let i = 0; i < array.length - 1; i++) {
+
+        for (let j = i + 1; j < array.length; j++) {
+
+            events.push(
+                createEvent("compare", {
+                    indices: [i, j]
+                })
+            );
+
+            if (array[i] > array[j]) {
+
+                [array[i], array[j]] =
+                    [array[j], array[i]];
+
+                events.push(
+                    createEvent("swap", {
+                        indices: [i, j],
+                        values: [array[i], array[j]]
+                    })
+                );
+            }
+        }
+
+        events.push(
+            createEvent("sorted", {
+                indices: [i]
+            })
+        );
+    }
+
+    events.push(
+        createEvent("sorted", {
+            indices: [array.length - 1]
+        })
+    );
+
+    events.push(
+        createEvent("finish", {
+            array: [...array]
+        })
+    );
+
+    return {
+        array,
+        events
+    };
+}
+
+
+function stoogeSort(input) {
+
+    const array = [...input];
+    const events = [];
+
+    function sort(left, right) {
+
+        if (left >= right) {
+            return;
+        }
+
+        events.push(
+            createEvent("compare", {
+                indices: [left, right]
+            })
+        );
+
+        if (array[left] > array[right]) {
+
+            [array[left], array[right]] =
+                [array[right], array[left]];
+
+            events.push(
+                createEvent("swap", {
+                    indices: [left, right],
+                    values: [array[left], array[right]]
+                })
+            );
+        }
+
+        if (right - left + 1 > 2) {
+
+            const third = Math.floor(
+                (right - left + 1) / 3
+            );
+
+            sort(left, right - third);
+
+            sort(left + third, right);
+
+            sort(left, right - third);
+        }
+    }
+
+    sort(0, array.length - 1);
+
+    events.push(
+        createEvent("finish", {
+            array: [...array]
+        })
+    );
+
+    return {
+        array,
+        events
+    };
+}
