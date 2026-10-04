@@ -366,3 +366,73 @@ function stoogeSort(input) {
         events
     };
 }
+// --- ADAPTACIÓN DE LOS 3 ALGORITMOS DE FUERZA BRUTA CON SISTEMA DE EVENTOS ---
+
+function bubbleSort(input) {
+    const array = [...input];
+    const events = [];
+    let n = array.length;
+
+    for (let i = 0; i < n; i++) {
+        for (let j = 0; j < n - i - 1; j++) {
+            events.push(createEvent("compare", { indices: [j, j + 1] }));
+
+            if (array[j] > array[j + 1]) {
+                [array[j], array[j + 1]] = [array[j + 1], array[j]];
+                events.push(createEvent("swap", { indices: [j, j + 1], values: [array[j], array[j + 1]] }));
+            }
+        }
+        events.push(createEvent("sorted", { indices: [n - 1 - i] }));
+    }
+
+    events.push(createEvent("finish", { array: [...array] }));
+    return { array, events };
+}
+
+function selectionSort(input) {
+    const array = [...input];
+    const events = [];
+    let n = array.length;
+
+    for (let i = 0; i < n - 1; i++) {
+        let min_idx = i;
+        for (let j = i + 1; j < n; j++) {
+            events.push(createEvent("compare", { indices: [min_idx, j] }));
+            if (array[j] < array[min_idx]) {
+                min_idx = j;
+            }
+        }
+        if (min_idx !== i) {
+            [array[i], array[min_idx]] = [array[min_idx], array[i]];
+            events.push(createEvent("swap", { indices: [i, min_idx], values: [array[i], array[min_idx]] }));
+        }
+        events.push(createEvent("sorted", { indices: [i] }));
+    }
+    events.push(createEvent("sorted", { indices: [n - 1] }));
+    events.push(createEvent("finish", { array: [...array] }));
+    return { array, events };
+}
+
+function insertionSort(input) {
+    const array = [...input];
+    const events = [];
+
+    for (let i = 1; i < array.length; i++) {
+        let clave = array[i];
+        let j = i - 1;
+
+        events.push(createEvent("compare", { indices: [j, i] }));
+
+        while (j >= 0 && array[j] > clave) {
+            events.push(createEvent("compare", { indices: [j, j + 1] }));
+            array[j + 1] = array[j];
+            events.push(createEvent("overwrite", { index: j + 1, value: array[j + 1] }));
+            j--;
+        }
+        array[j + 1] = clave;
+        events.push(createEvent("overwrite", { index: j + 1, value: clave }));
+    }
+
+    events.push(createEvent("finish", { array: [...array] }));
+    return { array, events };
+}
