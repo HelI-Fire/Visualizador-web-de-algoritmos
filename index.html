@@ -3,85 +3,179 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HELL FIRE - Visualizador de Algoritmos</title>
+    <title>Visualizador de Algoritmos</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            text-align: center;
             background-color: #121212;
             color: #ffffff;
+            font-family: Arial, sans-serif;
             margin: 0;
             padding: 20px;
         }
-        #contenedor-visualizador {
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        /* Panel de control superior */
+        .control-panel {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            background-color: #1e1e1e;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .control-group label {
+            font-size: 14px;
+            color: #b0b0b0;
+        }
+        select, input[type="range"] {
+            background-color: #2a2a2a;
+            color: #ffffff;
+            border: 1px solid #444;
+            padding: 8px 12px;
+            border-radius: 6px;
+            outline: none;
+            font-size: 14px;
+        }
+        select {
+            cursor: pointer;
+        }
+        /* Botones de acción */
+        .btn-container {
+            display: flex;
+            gap: 10px;
+        }
+        button {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+            color: #fff;
+            transition: opacity 0.2s;
+        }
+        button:hover {
+            opacity: 0.85;
+        }
+        .btn-generate { background-color: #2d3748; }
+        .btn-start { background-color: #dd6b20; }
+        .btn-pause { background-color: #d69e2e; color: #121212; }
+        .btn-reset { background-color: #9b2c2c; }
+
+        /* Área de visualización de barras */
+        #array-container {
             display: flex;
             align-items: flex-end;
             justify-content: center;
-            height: 400px;
-            width: 80%;
-            margin: 20px auto;
-            background-color: #1e1e1e;
-            border: 2px solid #ff4500;
-            padding: 10px;
-            gap: 2px;
+            height: 350px;
+            gap: 4px;
+            padding: 20px;
+            background-color: #181818;
+            border-radius: 8px;
         }
-        .barra-visualizador {
-            background-color: #ff4500;
-            transition: height 0.05s ease;
-        }
-        button {
-            background-color: #ff4500;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            cursor: pointer;
-            font-weight: bold;
-            margin: 5px;
-            border-radius: 5px;
-        }
-        button:hover {
-            background-color: #ff6347;
-        }
-        .seccion-botones {
-            margin: 15px 0;
+        .bar {
+            background-color: #4a5568;
+            width: 25px;
+            display: inline-block;
+            transition: height 0.1s ease;
         }
     </style>
 </head>
 <body>
 
-    <h1>HELL FIRE - Visualizador de Algoritmos</h1>
+    <header>
+        <h1>Visualizador de Algoritmos de Ordenamiento</h1>
+        <p>Observa cómo diferentes algoritmos ordenan un conjunto de datos mediante una visualización interactiva.</p>
+    </header>
 
-    <!-- Contenedor donde tu motor pintará las barras -->
-    <div id="contenedor-visualizador"></div>
+    <!-- Tablero / Panel de Control Superior -->
+    <div class="control-panel">
+        <!-- Selector de Algoritmo con los 8 tipos -->
+        <div class="control-group">
+            <label for="algorithm">Algoritmo</label>
+            <select id="algorithm">
+                <option value="bubble">Bubble Sort</option>
+                <option value="insertion">Insertion Sort</option>
+                <option value="selection">Selection Sort</option>
+                <option value="merge">Merge Sort</option>
+                <option value="quick">Quick Sort</option>
+                <option value="heap">Heap Sort</option>
+                <option value="shell">Shell Sort</option>
+                <option value="stooge">Stooge Sort</option>
+            </select>
+        </div>
 
-    <!-- Controles de Datos -->
-    <div class="seccion-botones">
-        <button onclick="actualizarVistaConDatosNuevos()">Generar Nuevo Arreglo</button>
-        <button onclick="actualizarVistaConReinicio()">Reiniciar Arreglo</button>
+        <!-- Deslizador de Elementos -->
+        <div class="control-group">
+            <label for="elements-slider" id="label-elements">Elementos: 10</label>
+            <input type="range" id="elements-slider" min="5" max="50" value="10">
+        </div>
+
+        <!-- Deslizador de Velocidad -->
+        <div class="control-group">
+            <label for="speed-slider" id="label-speed">Velocidad: 150 ms</label>
+            <input type="range" id="speed-slider" min="10" max="500" value="150">
+        </div>
+
+        <!-- Botones de Acción -->
+        <div class="btn-container">
+            <button class="btn-generate" id="btn-generate">Generar arreglo</button>
+            <button class="btn-start" id="btn-start">▶ Iniciar</button>
+            <button class="btn-pause" id="btn-pause">❚❚ Pausar</button>
+            <button class="btn-reset" id="btn-reset">↺ Reiniciar</button>
+        </div>
     </div>
 
-    <!-- Botones de los Algoritmos solicitados (Fuerza Bruta) -->
-    <div class="seccion-botones">
-        <strong>Fuerza Bruta:</strong>
-        <button onclick="ejecutarAnimacionOrdenamiento('bubble')">Bubble Sort</button>
-        <button onclick="ejecutarAnimacionOrdenamiento('selection')">Selection Sort</button>
-        <button onclick="ejecutarAnimacionOrdenamiento('insertion')">Insertion Sort</button>
-    </div>
+    <!-- Contenedor de las barras gráficas -->
+    <div id="array-container"></div>
 
-    <!-- Botones de los Algoritmos extras que ya estaban en el repositorio -->
-    <div class="seccion-botones">
-        <strong>Otros Algoritmos:</strong>
-        <button onclick="ejecutarAnimacionOrdenamiento('quick')">Quick Sort</button>
-        <button onclick="ejecutarAnimacionOrdenamiento('merge')">Merge Sort</button>
-        <button onclick="ejecutarAnimacionOrdenamiento('gnome')">Gnome Sort</button>
-        <button onclick="ejecutarAnimacionOrdenamiento('exchange')">Exchange Sort</button>
-        <button onclick="ejecutarAnimacionOrdenamiento('stooge')">Stooge Sort</button>
-    </div>
+    <script>
+        const container = document.getElementById('array-container');
+        const elementsSlider = document.getElementById('elements-slider');
+        const speedSlider = document.getElementById('speed-slider');
+        const labelElements = document.getElementById('label-elements');
+        const labelSpeed = document.getElementById('label-speed');
+        
+        let array = [];
 
-    <!-- Enlaces a los scripts del equipo en orden correcto -->
-    <script src="datos.js"></script>
-    <script src="ordenamientos.js"></script>
-    <script src="render.js"></script>
+        function generateArray() {
+            container.innerHTML = '';
+            array = [];
+            const numElements = elementsSlider.value;
+            
+            for (let i = 0; i < numElements; i++) {
+                const value = Math.floor(Math.random() * 100) + 10;
+                array.push(value);
+                
+                const bar = document.createElement('div');
+                bar.classList.add('bar');
+                bar.style.height = `${value * 3}px`;
+                container.appendChild(bar);
+            }
+        }
 
+        elementsSlider.addEventListener('input', (e) => {
+            labelElements.innerText = `Elementos: ${e.target.value}`;
+            generateArray();
+        });
+
+        speedSlider.addEventListener('input', (e) => {
+            labelSpeed.innerText = `Velocidad: ${e.target.value} ms`;
+        });
+
+        document.getElementById('btn-generate').addEventListener('click', generateArray);
+
+        window.onload = generateArray;
+    </script>
 </body>
 </html>
