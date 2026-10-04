@@ -53,6 +53,7 @@
         .btn-container {
             display: flex;
             gap: 10px;
+            flex-wrap: wrap;
         }
         button {
             padding: 10px 16px;
@@ -75,6 +76,8 @@
         .btn-start { background-color: #dd6b20; }
         .btn-pause { background-color: #d69e2e; color: #121212; }
         .btn-reset { background-color: #9b2c2c; }
+        .btn-compare { background-color: #3182ce; }
+        .btn-compare-start { background-color: #38a169; margin-top: 10px; }
 
         /* Área de visualización de barras */
         #array-container {
@@ -133,11 +136,63 @@
             <button class="btn-start" id="btn-start">▶ Iniciar</button>
             <button class="btn-pause" id="btn-pause">❚❚ Pausar</button>
             <button class="btn-reset" id="btn-reset">↺ Reiniciar</button>
+            <button class="btn-compare" id="btn-compare">⚖️ Comparar Dos</button>
         </div>
     </div>
 
     <!-- Contenedor de las barras gráficas -->
     <div id="array-container"></div>
+
+    <!-- Panel de comparación con selectores, selector de tamaño y animación simultánea -->
+    <div id="comparison-container" style="display: none; margin-top: 20px; flex-direction: column; gap: 15px; background: #181818; padding: 20px; border-radius: 8px;">
+        <div style="display: flex; justify-content: center; align-items: flex-end; gap: 20px; flex-wrap: wrap;">
+            <div class="control-group">
+                <label for="algo1-select">Método 1:</label>
+                <select id="algo1-select">
+                    <option value="bubble">Bubble Sort</option>
+                    <option value="insertion">Insertion Sort</option>
+                    <option value="selection">Selection Sort</option>
+                    <option value="merge">Merge Sort</option>
+                    <option value="quick">Quick Sort</option>
+                    <option value="heap">Heap Sort</option>
+                    <option value="shell">Shell Sort</option>
+                    <option value="stooge">Stooge Sort</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label for="algo2-select">Método 2:</label>
+                <select id="algo2-select">
+                    <option value="quick">Quick Sort</option>
+                    <option value="bubble">Bubble Sort</option>
+                    <option value="insertion">Insertion Sort</option>
+                    <option value="selection">Selection Sort</option>
+                    <option value="merge">Merge Sort</option>
+                    <option value="heap">Heap Sort</option>
+                    <option value="shell">Shell Sort</option>
+                    <option value="stooge">Stooge Sort</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label for="elements-slider-comp" id="label-elements-comp">Elementos: 15</label>
+                <input type="range" id="elements-slider-comp" min="5" max="40" value="15">
+            </div>
+            <button class="btn-compare-start" id="btn-compare-start">▶ Iniciar Comparación</button>
+        </div>
+
+        <div style="display: flex; gap: 20px; justify-content: space-around; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 250px; background: #121212; padding: 15px; border-radius: 8px; text-align: center;">
+                <h3 id="title-algo1">Método 1</h3>
+                <p id="time-algo1">Tiempo: 0 ms</p>
+                <div id="container-algo1" style="display: flex; align-items: flex-end; justify-content: center; height: 250px; gap: 2px;"></div>
+            </div>
+            <div style="flex: 1; min-width: 250px; background: #121212; padding: 15px; border-radius: 8px; text-align: center;">
+                <h3 id="title-algo2">Método 2</h3>
+                <p id="time-algo2">Tiempo: 0 ms</p>
+                <div id="container-algo2" style="display: flex; align-items: flex-end; justify-content: center; height: 250px; gap: 2px;"></div>
+            </div>
+        </div>
+        <div id="comparison-result" style="text-align: center; font-size: 18px; font-weight: bold; color: #38a169;"></div>
+    </div>
 
     <script>
         const container = document.getElementById('array-container');
@@ -150,7 +205,12 @@
         const btnStart = document.getElementById('btn-start');
         const btnPause = document.getElementById('btn-pause');
         const btnReset = document.getElementById('btn-reset');
+        const btnCompare = document.getElementById('btn-compare');
+        const btnCompareStart = document.getElementById('btn-compare-start');
         const algorithmSelect = document.getElementById('algorithm');
+
+        const elementsSliderComp = document.getElementById('elements-slider-comp');
+        const labelElementsComp = document.getElementById('label-elements-comp');
 
         let array = [];
         let originalArray = [];
@@ -173,6 +233,8 @@
         function generateArray() {
             if (isSorting) return;
             container.innerHTML = '';
+            document.getElementById('comparison-container').style.display = 'none';
+            document.getElementById('comparison-result').innerText = '';
             array = [];
             const numElements = elementsSlider.value;
             
@@ -469,6 +531,287 @@
             }
         }
 
+        // Función auxiliar para renderizar barras iniciales de comparación
+        function generarBarrasComparacion(numElementos, containerId) {
+            const cont = document.getElementById(containerId);
+            cont.innerHTML = '';
+            let datosTemp = [];
+            for (let i = 0; i < numElementos; i++) {
+                const valor = Math.floor(Math.random() * 100) + 15;
+                datosTemp.push(valor);
+            }
+            const max = Math.max(...datosTemp, 100);
+            datosTemp.forEach(val => {
+                const bar = document.createElement('div');
+                bar.classList.add('bar');
+                bar.style.height = `${(val / max) * 100}%`;
+                bar.style.width = `${100 / datosTemp.length}%`;
+                cont.appendChild(bar);
+            });
+            return datosTemp;
+        }
+
+        // Función simuladora animada para cualquier algoritmo en el panel de comparación
+        async function animarAlgoritmoComparacion(nombre, arr, containerId) {
+            let a = [...arr];
+            const cont = document.getElementById(containerId);
+            cont.innerHTML = '';
+            const max = Math.max(...a, 100);
+
+            a.forEach(val => {
+                const bar = document.createElement('div');
+                bar.classList.add('bar');
+                bar.style.height = `${(val / max) * 100}%`;
+                bar.style.width = `${100 / a.length}%`;
+                cont.appendChild(bar);
+            });
+            const bars = cont.getElementsByClassName('bar');
+            let speed = parseInt(speedSlider.value);
+
+            async function swapBars(i, j) {
+                let temp = a[i]; a[i] = a[j]; a[j] = temp;
+                bars[i].style.height = `${(a[i] / max) * 100}%`;
+                bars[j].style.height = `${(a[j] / max) * 100}%`;
+                bars[i].style.backgroundColor = '#dd6b20';
+                bars[j].style.backgroundColor = '#dd6b20';
+                await sleep(speed);
+                bars[i].style.backgroundColor = '#4a5568';
+                bars[j].style.backgroundColor = '#4a5568';
+            }
+
+            async function setBar(idx, val) {
+                a[idx] = val;
+                bars[idx].style.height = `${(val / max) * 100}%`;
+                bars[idx].style.backgroundColor = '#3182ce';
+                await sleep(speed);
+                bars[idx].style.backgroundColor = '#4a5568';
+            }
+
+            // Ejecución animada paso a paso según el algoritmo seleccionado
+            if (nombre === 'bubble') {
+                let len = a.length;
+                for (let i = 0; i < len; i++) {
+                    for (let j = 0; j < len - i - 1; j++) {
+                        bars[j].style.backgroundColor = '#3182ce';
+                        bars[j + 1].style.backgroundColor = '#3182ce';
+                        await sleep(speed);
+                        if (a[j] > a[j + 1]) await swapBars(j, j + 1);
+                        bars[j].style.backgroundColor = '#4a5568';
+                        bars[j + 1].style.backgroundColor = '#4a5568';
+                    }
+                    bars[len - i - 1].style.backgroundColor = '#38a169';
+                }
+            } else if (nombre === 'insertion') {
+                for (let i = 1; i < a.length; i++) {
+                    let key = a[i];
+                    let j = i - 1;
+                    bars[i].style.backgroundColor = '#d69e2e';
+                    await sleep(speed);
+                    while (j >= 0 && a[j] > key) {
+                        a[j + 1] = a[j];
+                        bars[j + 1].style.height = `${(a[j + 1] / max) * 100}%`;
+                        j--;
+                        await sleep(speed);
+                    }
+                    a[j + 1] = key;
+                    bars[j + 1].style.height = `${(key / max) * 100}%`;
+                    bars[i].style.backgroundColor = '#4a5568';
+                }
+                for (let bar of bars) bar.style.backgroundColor = '#38a169';
+            } else if (nombre === 'selection') {
+                let n = a.length;
+                for (let i = 0; i < n; i++) {
+                    let minIdx = i;
+                    bars[minIdx].style.backgroundColor = '#d69e2e';
+                    for (let j = i + 1; j < n; j++) {
+                        bars[j].style.backgroundColor = '#3182ce';
+                        await sleep(speed);
+                        if (a[j] < a[minIdx]) {
+                            bars[minIdx].style.backgroundColor = '#4a5568';
+                            minIdx = j;
+                            bars[minIdx].style.backgroundColor = '#d69e2e';
+                        } else {
+                            bars[j].style.backgroundColor = '#4a5568';
+                        }
+                    }
+                    if (minIdx !== i) await swapBars(i, minIdx);
+                    bars[minIdx].style.backgroundColor = '#4a5568';
+                    bars[i].style.backgroundColor = '#38a169';
+                }
+            } else if (nombre === 'quick') {
+                async function qSort(low, high) {
+                    if (low < high) {
+                        let pivot = a[high];
+                        bars[high].style.backgroundColor = '#e53e3e';
+                        let i = low - 1;
+                        for (let j = low; j <= high - 1; j++) {
+                            bars[j].style.backgroundColor = '#3182ce';
+                            await sleep(speed);
+                            if (a[j] < pivot) {
+                                i++;
+                                await swapBars(i, j);
+                            }
+                            bars[j].style.backgroundColor = '#4a5568';
+                        }
+                        await swapBars(i + 1, high);
+                        bars[high].style.backgroundColor = '#4a5568';
+                        let pi = i + 1;
+                        await qSort(low, pi - 1);
+                        await qSort(pi + 1, high);
+                    }
+                }
+                await qSort(0, a.length - 1);
+                for (let bar of bars) bar.style.backgroundColor = '#38a169';
+            } else if (nombre === 'merge') {
+                async function mSort(start, end) {
+                    if (start >= end) return;
+                    let mid = Math.floor((start + end) / 2);
+                    await mSort(start, mid);
+                    await mSort(mid + 1, end);
+                    let tempArr = [];
+                    let i = start, j = mid + 1;
+                    while (i <= mid && j <= end) {
+                        if (a[i] <= a[j]) tempArr.push(a[i++]);
+                        else tempArr.push(a[j++]);
+                    }
+                    while (i <= mid) tempArr.push(a[i++]);
+                    while (j <= end) tempArr.push(a[j++]);
+                    for (let k = 0; k < tempArr.length; k++) {
+                        await setBar(start + k, tempArr[k]);
+                    }
+                }
+                await mSort(0, a.length - 1);
+                for (let bar of bars) bar.style.backgroundColor = '#38a169';
+            } else if (nombre === 'heap') {
+                let n = a.length;
+                async function heapify(n, i) {
+                    let largest = i;
+                    let l = 2 * i + 1, r = 2 * i + 2;
+                    if (l < n && a[l] > a[largest]) largest = l;
+                    if (r < n && a[r] > a[largest]) largest = r;
+                    if (largest !== i) {
+                        await swapBars(i, largest);
+                        await heapify(n, largest);
+                    }
+                }
+                for (let i = Math.floor(n / 2) - 1; i >= 0; i--) await heapify(n, i);
+                for (let i = n - 1; i > 0; i--) {
+                    await swapBars(0, i);
+                    bars[i].style.backgroundColor = '#38a169';
+                    await heapify(i, 0);
+                }
+                bars[0].style.backgroundColor = '#38a169';
+            } else if (nombre === 'shell') {
+                let n = a.length;
+                for (let gap = Math.floor(n / 2); gap > 0; gap = Math.floor(gap / 2)) {
+                    for (let i = gap; i < n; i++) {
+                        let temp = a[i];
+                        let j;
+                        bars[i].style.backgroundColor = '#d69e2e';
+                        await sleep(speed);
+                        for (j = i; j >= gap && a[j - gap] > temp; j -= gap) {
+                            a[j] = a[j - gap];
+                            bars[j].style.height = `${(a[j] / max) * 100}%`;
+                        }
+                        a[j] = temp;
+                        bars[j].style.height = `${(temp / max) * 100}%`;
+                        bars[i].style.backgroundColor = '#4a5568';
+                    }
+                }
+                for (let bar of bars) bar.style.backgroundColor = '#38a169';
+            } else if (nombre === 'stooge') {
+                async function sSort(l, h) {
+                    if (a[l] > a[h]) await swapBars(l, h);
+                    if (h - l + 1 > 2) {
+                        let t = Math.floor((h - l + 1) / 3);
+                        await sSort(l, h - t);
+                        await sSort(l + t, h);
+                        await sSort(l, h - t);
+                    }
+                }
+                await sSort(0, a.length - 1);
+                for (let bar of bars) bar.style.backgroundColor = '#38a169';
+            }
+        }
+
+        // Mostrar panel de comparación y generar arreglos iniciales iguales
+        btnCompare.addEventListener('click', () => {
+            if (isSorting) return;
+            const containerComp = document.getElementById('comparison-container');
+            const isVisible = containerComp.style.display === 'flex';
+            containerComp.style.display = isVisible ? 'none' : 'flex';
+            
+            if (!isVisible) {
+                const numComp = elementsSliderComp.value;
+                generarBarrasComparacion(numComp, 'container-algo1');
+                generarBarrasComparacion(numComp, 'container-algo2');
+                document.getElementById('comparison-result').innerText = '';
+            }
+        });
+
+        // Actualizar barras de comparación al mover el slider de elementos de comparación
+        elementsSliderComp.addEventListener('input', (e) => {
+            const val = e.target.value;
+            labelElementsComp.innerText = `Elementos: ${val}`;
+            generarBarrasComparacion(val, 'container-algo1');
+            generarBarrasComparacion(val, 'container-algo2');
+            document.getElementById('comparison-result').innerText = '';
+        });
+
+        // Manejador del Botón Iniciar Comparación con Animación y Tiempos Simultáneos
+        btnCompareStart.addEventListener('click', async () => {
+            const numComp = elementsSliderComp.value;
+            const baseData = generarBarrasComparacion(numComp, 'container-algo1');
+            // Replicar los mismos datos exactos para el contenedor 2 para una comparación justa
+            const cont2 = document.getElementById('container-algo2');
+            cont2.innerHTML = '';
+            const max = Math.max(...baseData, 100);
+            baseData.forEach(val => {
+                const bar = document.createElement('div');
+                bar.classList.add('bar');
+                bar.style.height = `${(val / max) * 100}%`;
+                bar.style.width = `${100 / baseData.length}%`;
+                cont2.appendChild(bar);
+            });
+
+            const algo1Name = document.getElementById('algo1-select').value;
+            const algo2Name = document.getElementById('algo2-select').value;
+
+            const name1 = document.querySelector(`#algo1-select option[value="${algo1Name}"]`).text;
+            const name2 = document.querySelector(`#algo2-select option[value="${algo2Name}"]`).text;
+
+            document.getElementById('title-algo1').innerText = name1;
+            document.getElementById('title-algo2').innerText = name2;
+            document.getElementById('comparison-result').innerText = "Animando y midiendo ambos métodos...";
+
+            let time1 = 0;
+            let time2 = 0;
+
+            // Ejecución simultánea e independiente para Método 1
+            const promesa1 = (async () => {
+                let tStart = performance.now();
+                await animarAlgoritmoComparacion(algo1Name, [...baseData], 'container-algo1');
+                let tEnd = performance.now();
+                time1 = (tEnd - tStart).toFixed(2);
+                document.getElementById('time-algo1').innerText = `Tiempo: ${time1} ms`;
+            })();
+
+            // Ejecución simultánea e independiente para Método 2
+            const promesa2 = (async () => {
+                let tStart = performance.now();
+                await animarAlgoritmoComparacion(algo2Name, [...baseData], 'container-algo2');
+                let tEnd = performance.now();
+                time2 = (tEnd - tStart).toFixed(2);
+                document.getElementById('time-algo2').innerText = `Tiempo: ${time2} ms`;
+            })();
+
+            // Esperar a que ambos terminen para emitir el mensaje final
+            await Promise.all([promesa1, promesa2]);
+
+            const resText = document.getElementById('comparison-result');
+            resText.innerText = `${name1} termino con: ${time1} ms y el ${name2} termino con: ${time2} ms`;
+        });
+
         // Manejador del Botón Iniciar
         btnStart.addEventListener('click', async () => {
             if (isSorting) return;
@@ -517,6 +860,8 @@
             elementsSlider.disabled = false;
             btnGenerate.disabled = false;
             algorithmSelect.disabled = false;
+            document.getElementById('comparison-container').style.display = 'none';
+            document.getElementById('comparison-result').innerText = '';
         });
 
         elementsSlider.addEventListener('input', (e) => {
