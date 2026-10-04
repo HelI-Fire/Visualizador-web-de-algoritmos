@@ -96,6 +96,65 @@
             display: inline-block;
             transition: height 0.05s ease;
         }
+
+        /* Zona principal: barras a la izquierda, código a la derecha */
+        .main-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: flex-start;
+        }
+        .main-area #array-container {
+            flex: 1 1 480px;
+            min-width: 0;
+        }
+        /* Panel de código del algoritmo */
+        #code-panel {
+            flex: 0 1 460px;
+            min-width: 300px;
+            height: 390px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            background-color: #181818;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        #code-title {
+            padding: 10px 14px;
+            background-color: #2d3748;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        #code-body {
+            flex: 1;
+            overflow: auto;
+            position: relative;
+            padding: 8px 0;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 12px;
+        }
+        .code-line {
+            display: flex;
+            white-space: pre;
+            line-height: 18px;
+            padding-right: 12px;
+            border-left: 3px solid transparent;
+            color: #e2e8f0;
+        }
+        .code-line .code-num {
+            flex: 0 0 28px;
+            text-align: right;
+            margin-right: 10px;
+            color: #718096;
+            user-select: none;
+        }
+        .code-line.code-comment { color: #718096; }
+        .code-line.activa {
+            background-color: rgba(221, 107, 32, 0.30);
+            border-left-color: #dd6b20;
+            color: #ffffff;
+        }
     </style>
 </head>
 <body>
@@ -140,8 +199,14 @@
         </div>
     </div>
 
-    <!-- Contenedor de las barras gráficas -->
-    <div id="array-container"></div>
+    <!-- Barras gráficas (izquierda) y código del algoritmo (derecha) -->
+    <div class="main-area">
+        <div id="array-container"></div>
+        <aside id="code-panel">
+            <div id="code-title">Código</div>
+            <div id="code-body"></div>
+        </aside>
+    </div>
 
     <!-- Panel de comparación con selectores, selector de tamaño y animación simultánea -->
     <div id="comparison-container" style="display: none; margin-top: 20px; flex-direction: column; gap: 15px; background: #181818; padding: 20px; border-radius: 8px;">
@@ -177,6 +242,8 @@
                 <input type="range" id="elements-slider-comp" min="5" max="40" value="15">
             </div>
             <button class="btn-compare-start" id="btn-compare-start">▶ Iniciar Comparación</button>
+            <button class="btn-pause" id="btn-comp-pause">❚❚ Pausar</button>
+            <button class="btn-reset" id="btn-comp-reset">↺ Reiniciar</button>
         </div>
 
         <div style="display: flex; gap: 20px; justify-content: space-around; flex-wrap: wrap;">
@@ -233,6 +300,7 @@
         function generateArray() {
             if (isSorting) return;
             container.innerHTML = '';
+            detenerComparacion();
             document.getElementById('comparison-container').style.display = 'none';
             document.getElementById('comparison-result').innerText = '';
             array = [];
@@ -258,6 +326,230 @@
             }
         }
 
+        // --- PANEL DE CÓDIGO ---
+        // Cada algoritmo guarda las líneas que se muestran. El número entre /* */ es el índice
+        // de línea que usan las llamadas a resaltar([...]) dentro de cada algoritmo.
+        const CODIGOS = {
+            bubble: {
+                titulo: 'Bubble Sort',
+                lineas: [
+                    /*0*/ 'for (let i = 0; i < n; i++) {',
+                    /*1*/ '  for (let j = 0; j < n - i - 1; j++) {',
+                    /*2*/ '    if (array[j] > array[j + 1]) {',
+                    /*3*/ '      let temp = array[j];',
+                    /*4*/ '      array[j] = array[j + 1];',
+                    /*5*/ '      array[j + 1] = temp;',
+                    /*6*/ '    }',
+                    /*7*/ '  }',
+                    /*8*/ '  // array[n - i - 1] ya quedó en su lugar',
+                    /*9*/ '}'
+                ]
+            },
+            insertion: {
+                titulo: 'Insertion Sort',
+                lineas: [
+                    /*0*/ 'for (let i = 1; i < n; i++) {',
+                    /*1*/ '  let key = array[i];',
+                    /*2*/ '  let j = i - 1;',
+                    /*3*/ '  while (j >= 0 && array[j] > key) {',
+                    /*4*/ '    array[j + 1] = array[j];',
+                    /*5*/ '    j = j - 1;',
+                    /*6*/ '  }',
+                    /*7*/ '  array[j + 1] = key;',
+                    /*8*/ '}'
+                ]
+            },
+            selection: {
+                titulo: 'Selection Sort',
+                lineas: [
+                    /*0*/ 'for (let i = 0; i < n; i++) {',
+                    /*1*/ '  let minIdx = i;',
+                    /*2*/ '  for (let j = i + 1; j < n; j++) {',
+                    /*3*/ '    if (array[j] < array[minIdx]) {',
+                    /*4*/ '      minIdx = j;',
+                    /*5*/ '    }',
+                    /*6*/ '  }',
+                    /*7*/ '  if (minIdx !== i) {',
+                    /*8*/ '    let temp = array[i];',
+                    /*9*/ '    array[i] = array[minIdx];',
+                    /*10*/ '    array[minIdx] = temp;',
+                    /*11*/ '  }',
+                    /*12*/ '}'
+                ]
+            },
+            merge: {
+                titulo: 'Merge Sort',
+                lineas: [
+                    /*0*/ 'function mergeSort(start, end) {',
+                    /*1*/ '  if (start >= end) return;',
+                    /*2*/ '  let mid = Math.floor((start + end) / 2);',
+                    /*3*/ '  mergeSort(start, mid);',
+                    /*4*/ '  mergeSort(mid + 1, end);',
+                    /*5*/ '  merge(start, mid, end);',
+                    /*6*/ '}',
+                    /*7*/ 'function merge(start, mid, end) {',
+                    /*8*/ '  // comparar las dos mitades ya ordenadas',
+                    /*9*/ '  while (i <= mid && j <= end) {',
+                    /*10*/ '    if (array[i] <= array[j]) temp.push(array[i++]);',
+                    /*11*/ '    else temp.push(array[j++]);',
+                    /*12*/ '  }',
+                    /*13*/ '  // pasar lo que sobre de cada mitad',
+                    /*14*/ '  while (i <= mid) temp.push(array[i++]);',
+                    /*15*/ '  while (j <= end) temp.push(array[j++]);',
+                    /*16*/ '  // escribir temp en el arreglo',
+                    /*17*/ '  for (let k = 0; k < temp.length; k++) {',
+                    /*18*/ '    array[start + k] = temp[k];',
+                    /*19*/ '  }',
+                    /*20*/ '}'
+                ]
+            },
+            quick: {
+                titulo: 'Quick Sort',
+                lineas: [
+                    /*0*/ 'function quickSort(low, high) {',
+                    /*1*/ '  if (low < high) {',
+                    /*2*/ '    let pi = partition(low, high);',
+                    /*3*/ '    quickSort(low, pi - 1);',
+                    /*4*/ '    quickSort(pi + 1, high);',
+                    /*5*/ '  }',
+                    /*6*/ '}',
+                    /*7*/ 'function partition(low, high) {',
+                    /*8*/ '  let pivot = array[high];',
+                    /*9*/ '  let i = low - 1;',
+                    /*10*/ '  for (let j = low; j < high; j++) {',
+                    /*11*/ '    if (array[j] < pivot) {',
+                    /*12*/ '      i++;',
+                    /*13*/ '      [array[i], array[j]] = [array[j], array[i]];',
+                    /*14*/ '    }',
+                    /*15*/ '  }',
+                    /*16*/ '  // el pivote va a su posición final',
+                    /*17*/ '  [array[i + 1], array[high]] = [array[high], array[i + 1]];',
+                    /*18*/ '  return i + 1;',
+                    /*19*/ '}'
+                ]
+            },
+            heap: {
+                titulo: 'Heap Sort',
+                lineas: [
+                    /*0*/ 'function heapSort() {',
+                    /*1*/ '  // 1) construir el heap máximo',
+                    /*2*/ '  for (let i = Math.floor(n / 2) - 1; i >= 0; i--)',
+                    /*3*/ '    heapify(n, i);',
+                    /*4*/ '  // 2) mover el máximo al final y reacomodar',
+                    /*5*/ '  for (let i = n - 1; i > 0; i--) {',
+                    /*6*/ '    [array[0], array[i]] = [array[i], array[0]];',
+                    /*7*/ '    heapify(i, 0);',
+                    /*8*/ '  }',
+                    /*9*/ '}',
+                    /*10*/ 'function heapify(n, i) {',
+                    /*11*/ '  let largest = i;',
+                    /*12*/ '  let l = 2 * i + 1, r = 2 * i + 2;',
+                    /*13*/ '  if (l < n && array[l] > array[largest]) largest = l;',
+                    /*14*/ '  if (r < n && array[r] > array[largest]) largest = r;',
+                    /*15*/ '  if (largest !== i) {',
+                    /*16*/ '    [array[i], array[largest]] = [array[largest], array[i]];',
+                    /*17*/ '    heapify(n, largest);',
+                    /*18*/ '  }',
+                    /*19*/ '}'
+                ]
+            },
+            shell: {
+                titulo: 'Shell Sort',
+                lineas: [
+                    /*0*/ 'function shellSort() {',
+                    /*1*/ '  for (let gap = Math.floor(n / 2); gap > 0;',
+                    /*2*/ '           gap = Math.floor(gap / 2)) {',
+                    /*3*/ '    for (let i = gap; i < n; i++) {',
+                    /*4*/ '      let temp = array[i];',
+                    /*5*/ '      let j;',
+                    /*6*/ '      for (j = i; j >= gap && array[j - gap] > temp; j -= gap) {',
+                    /*7*/ '        array[j] = array[j - gap];',
+                    /*8*/ '      }',
+                    /*9*/ '      array[j] = temp;',
+                    /*10*/ '    }',
+                    /*11*/ '  }',
+                    /*12*/ '}'
+                ]
+            },
+            stooge: {
+                titulo: 'Stooge Sort',
+                lineas: [
+                    /*0*/ 'function stoogeSort(l, h) {',
+                    /*1*/ '  if (array[l] > array[h]) {',
+                    /*2*/ '    [array[l], array[h]] = [array[h], array[l]];',
+                    /*3*/ '  }',
+                    /*4*/ '  if (h - l + 1 > 2) {',
+                    /*5*/ '    let t = Math.floor((h - l + 1) / 3);',
+                    /*6*/ '    stoogeSort(l, h - t);',
+                    /*7*/ '    stoogeSort(l + t, h);',
+                    /*8*/ '    stoogeSort(l, h - t);',
+                    /*9*/ '  }',
+                    /*10*/ '}'
+                ]
+            }
+        };
+
+        const codeTitle = document.getElementById('code-title');
+        const codeBody = document.getElementById('code-body');
+        let filasActivas = [];
+
+        // Dibuja en el panel derecho el código del algoritmo indicado
+        function mostrarCodigo(nombre) {
+            const info = CODIGOS[nombre];
+            if (!info) return;
+            codeTitle.innerText = `Código: ${info.titulo}`;
+            codeBody.innerHTML = '';
+            filasActivas = [];
+            info.lineas.forEach((texto, i) => {
+                const fila = document.createElement('div');
+                fila.classList.add('code-line');
+                if (texto.trim().startsWith('//')) fila.classList.add('code-comment');
+                const num = document.createElement('span');
+                num.classList.add('code-num');
+                num.textContent = i + 1;
+                const cod = document.createElement('span');
+                cod.textContent = texto;
+                fila.appendChild(num);
+                fila.appendChild(cod);
+                codeBody.appendChild(fila);
+            });
+            codeBody.scrollTop = 0;
+        }
+
+        // Marca la(s) línea(s) que se están ejecutando en este momento
+        function resaltar(lineas) {
+            const indices = [].concat(lineas);
+            filasActivas.forEach(f => f.classList.remove('activa'));
+            filasActivas = [];
+            indices.forEach(i => {
+                const fila = codeBody.children[i];
+                if (fila) {
+                    fila.classList.add('activa');
+                    filasActivas.push(fila);
+                }
+            });
+            // Mantener a la vista la primera línea resaltada (sin mover la página)
+            const primera = filasActivas[0];
+            if (primera) {
+                const arriba = primera.offsetTop;
+                const abajo = arriba + primera.offsetHeight;
+                if (arriba < codeBody.scrollTop || abajo > codeBody.scrollTop + codeBody.clientHeight) {
+                    codeBody.scrollTop = Math.max(0, arriba - codeBody.clientHeight / 2);
+                }
+            }
+        }
+
+        function limpiarResaltado() {
+            filasActivas.forEach(f => f.classList.remove('activa'));
+            filasActivas = [];
+        }
+
+        // Pausa corta (respeta pausa/velocidad) para que se alcance a ver la línea resaltada
+        async function pausaPaso() {
+            await checkControlState();
+            await sleep(parseInt(speedSlider.value));
+        }
+
         // --- 1. BUBBLE SORT ---
         async function bubbleSort() {
             const bars = document.getElementsByClassName('bar');
@@ -268,9 +560,11 @@
                     bars[j].style.backgroundColor = '#3182ce';
                     bars[j + 1].style.backgroundColor = '#3182ce';
                     let speed = parseInt(speedSlider.value);
+                    resaltar([2]);
                     await sleep(speed);
 
                     if (array[j] > array[j + 1]) {
+                        resaltar([3, 4, 5]);
                         let temp = array[j];
                         array[j] = array[j + 1];
                         array[j + 1] = temp;
@@ -295,9 +589,11 @@
                 let j = i - 1;
                 await checkControlState();
                 bars[i].style.backgroundColor = '#d69e2e';
+                resaltar([1, 2]);
 
                 while (j >= 0 && array[j] > key) {
                     await checkControlState();
+                    resaltar([3, 4, 5]);
                     bars[j].style.backgroundColor = '#3182ce';
                     bars[j + 1].style.backgroundColor = '#3182ce';
                     let speed = parseInt(speedSlider.value);
@@ -309,8 +605,10 @@
                     bars[j + 1].style.backgroundColor = '#4a5568';
                     j = j - 1;
                 }
+                resaltar([7]);
                 array[j + 1] = key;
                 bars[j + 1].style.height = `${key * 3}px`;
+                await pausaPaso();
             }
             for (let i = 0; i < bars.length; i++) bars[i].style.backgroundColor = '#38a169';
         }
@@ -322,8 +620,10 @@
             for (let i = 0; i < n; i++) {
                 let minIdx = i;
                 bars[minIdx].style.backgroundColor = '#d69e2e';
+                resaltar([1]);
                 for (let j = i + 1; j < n; j++) {
                     await checkControlState();
+                    resaltar(array[j] < array[minIdx] ? [2, 3, 4] : [2, 3]);
                     bars[j].style.backgroundColor = '#3182ce';
                     let speed = parseInt(speedSlider.value);
                     await sleep(speed);
@@ -337,11 +637,13 @@
                     }
                 }
                 if (minIdx !== i) {
+                    resaltar([7, 8, 9, 10]);
                     let temp = array[i];
                     array[i] = array[minIdx];
                     array[minIdx] = temp;
                     bars[i].style.height = `${array[i] * 3}px`;
                     bars[minIdx].style.height = `${array[minIdx] * 3}px`;
+                    await pausaPaso();
                 }
                 bars[minIdx].style.backgroundColor = '#4a5568';
                 bars[i].style.backgroundColor = '#38a169';
@@ -352,8 +654,11 @@
         async function mergeSort(start = 0, end = array.length - 1) {
             if (start >= end) return;
             const mid = Math.floor((start + end) / 2);
+            resaltar([3]);
             await mergeSort(start, mid);
+            resaltar([4]);
             await mergeSort(mid + 1, end);
+            resaltar([5]);
             await merge(start, mid, end);
         }
 
@@ -361,6 +666,7 @@
             const bars = document.getElementsByClassName('bar');
             let tempArray = [];
             let i = start, j = mid + 1;
+            resaltar([9, 10, 11, 12, 14, 15]);
 
             while (i <= mid && j <= end) {
                 await checkControlState();
@@ -372,10 +678,12 @@
             }
             while (i <= mid) tempArray.push(array[i++]);
             while (j <= end) tempArray.push(array[j++]);
+            await pausaPaso();
 
             for (let k = 0; k < tempArray.length; k++) {
                 await checkControlState();
                 let idx = start + k;
+                resaltar([17, 18]);
                 array[idx] = tempArray[k];
                 bars[idx].style.height = `${array[idx] * 3}px`;
                 bars[idx].style.backgroundColor = '#dd6b20';
@@ -388,8 +696,11 @@
         // --- 5. QUICK SORT ---
         async function quickSort(low = 0, high = array.length - 1) {
             if (low < high) {
+                resaltar([2]);
                 let pi = await partition(low, high);
+                resaltar([3]);
                 await quickSort(low, pi - 1);
+                resaltar([4]);
                 await quickSort(pi + 1, high);
             }
             if (low === 0 && high === array.length - 1) {
@@ -403,9 +714,12 @@
             let pivot = array[high];
             bars[high].style.backgroundColor = '#e53e3e';
             let i = (low - 1);
+            resaltar([8, 9]);
+            await pausaPaso();
 
             for (let j = low; j <= high - 1; j++) {
                 await checkControlState();
+                resaltar(array[j] < pivot ? [10, 11, 12, 13] : [10, 11]);
                 bars[j].style.backgroundColor = '#3182ce';
                 let speed = parseInt(speedSlider.value);
                 await sleep(speed);
@@ -420,6 +734,8 @@
                 }
                 bars[j].style.backgroundColor = '#4a5568';
             }
+            resaltar([16, 17]);
+            await pausaPaso();
             let temp = array[i + 1];
             array[i + 1] = array[high];
             array[high] = temp;
@@ -435,17 +751,21 @@
             let n = array.length;
 
             for (let i = Math.floor(n / 2) - 1; i >= 0; i--) {
+                resaltar([2, 3]);
                 await heapify(n, i);
             }
 
             for (let i = n - 1; i > 0; i--) {
                 await checkControlState();
+                resaltar([5, 6]);
                 let temp = array[0];
                 array[0] = array[i];
                 array[i] = temp;
                 bars[0].style.height = `${array[0] * 3}px`;
                 bars[i].style.height = `${array[i] * 3}px`;
                 bars[i].style.backgroundColor = '#38a169';
+                await pausaPaso();
+                resaltar([7]);
                 await heapify(i, 0);
             }
             bars[0].style.backgroundColor = '#38a169';
@@ -462,6 +782,7 @@
 
             if (largest !== i) {
                 await checkControlState();
+                resaltar([15, 16, 17]);
                 let temp = array[i];
                 array[i] = array[largest];
                 array[largest] = temp;
@@ -488,14 +809,17 @@
                     await checkControlState();
                     bars[i].style.backgroundColor = '#d69e2e';
                     let speed = parseInt(speedSlider.value);
+                    resaltar([3, 4, 5]);
                     await sleep(speed);
 
+                    resaltar(array[i - gap] > temp ? [6, 7, 9] : [6, 9]);
                     for (j = i; j >= gap && array[j - gap] > temp; j -= gap) {
                         array[j] = array[j - gap];
                         bars[j].style.height = `${array[j] * 3}px`;
                     }
                     array[j] = temp;
                     bars[j].style.height = `${temp * 3}px`;
+                    await pausaPaso();
                     bars[i].style.backgroundColor = '#4a5568';
                 }
             }
@@ -507,8 +831,10 @@
             const bars = document.getElementsByClassName('bar');
             await checkControlState();
             let speed = parseInt(speedSlider.value);
+            resaltar([1]);
 
             if (array[l] > array[h]) {
+                resaltar([1, 2]);
                 let t = array[l];
                 array[l] = array[h];
                 array[h] = t;
@@ -521,15 +847,90 @@
                 bars[h].style.backgroundColor = '#4a5568';
             }
             if (h - l + 1 > 2) {
+                resaltar([4, 5]);
                 let t = Math.floor((h - l + 1) / 3);
+                resaltar([6]);
                 await stoogeSort(l, h - t);
+                resaltar([7]);
                 await stoogeSort(l + t, h);
+                resaltar([8]);
                 await stoogeSort(l, h - t);
             }
             if (l === 0 && h === array.length - 1) {
                 for (let i = 0; i < bars.length; i++) bars[i].style.backgroundColor = '#38a169';
             }
         }
+
+        // --- CONTROL INDEPENDIENTE DE LA COMPARACIÓN (pausar / reiniciar) ---
+        const btnCompPause = document.getElementById('btn-comp-pause');
+        const btnCompReset = document.getElementById('btn-comp-reset');
+        let compRunning = false;     // hay una comparación animándose
+        let compPaused = false;      // la comparación está en pausa
+        let compRunId = 0;           // identifica la ejecución vigente; al cambiar, las anteriores se cancelan
+        let compBaseData = [];       // datos iniciales de la última comparación (para Reiniciar)
+        let compPauseInicio = 0;
+        let compPausaTotal = 0;      // ms en pausa, para no contarlos en los tiempos
+
+        // Sustituye a sleep() dentro de la comparación: respeta pausa y cancelación
+        async function compSleep(ms, runId) {
+            await sleep(ms);
+            while (compPaused) {
+                await sleep(100);
+                if (runId !== compRunId) throw new Error("CompStopped");
+            }
+            if (runId !== compRunId) throw new Error("CompStopped");
+        }
+
+        function bloquearControlesComp(bloquear) {
+            document.getElementById('algo1-select').disabled = bloquear;
+            document.getElementById('algo2-select').disabled = bloquear;
+            elementsSliderComp.disabled = bloquear;
+            btnCompareStart.disabled = bloquear;
+        }
+
+        // Cancela cualquier comparación en curso y deja los controles listos
+        function detenerComparacion() {
+            compRunId++;
+            compRunning = false;
+            compPaused = false;
+            btnCompPause.innerText = "❚❚ Pausar";
+            bloquearControlesComp(false);
+        }
+
+        function dibujarBarrasComparacion(datos, containerId) {
+            const cont = document.getElementById(containerId);
+            cont.innerHTML = '';
+            const max = Math.max(...datos, 100);
+            datos.forEach(val => {
+                const bar = document.createElement('div');
+                bar.classList.add('bar');
+                bar.style.height = `${(val / max) * 100}%`;
+                bar.style.width = `${100 / datos.length}%`;
+                cont.appendChild(bar);
+            });
+        }
+
+        btnCompPause.addEventListener('click', () => {
+            if (!compRunning) return;
+            compPaused = !compPaused;
+            if (compPaused) compPauseInicio = performance.now();
+            else compPausaTotal += performance.now() - compPauseInicio;
+            btnCompPause.innerText = compPaused ? "▶ Reanudar" : "❚❚ Pausar";
+        });
+
+        btnCompReset.addEventListener('click', () => {
+            detenerComparacion();
+            if (compBaseData.length > 0) {
+                dibujarBarrasComparacion(compBaseData, 'container-algo1');
+                dibujarBarrasComparacion(compBaseData, 'container-algo2');
+            } else {
+                generarBarrasComparacion(elementsSliderComp.value, 'container-algo1');
+                generarBarrasComparacion(elementsSliderComp.value, 'container-algo2');
+            }
+            document.getElementById('time-algo1').innerText = 'Tiempo: 0 ms';
+            document.getElementById('time-algo2').innerText = 'Tiempo: 0 ms';
+            document.getElementById('comparison-result').innerText = '';
+        });
 
         // Función auxiliar para renderizar barras iniciales de comparación
         function generarBarrasComparacion(numElementos, containerId) {
@@ -552,7 +953,7 @@
         }
 
         // Función simuladora animada para cualquier algoritmo en el panel de comparación
-        async function animarAlgoritmoComparacion(nombre, arr, containerId) {
+        async function animarAlgoritmoComparacion(nombre, arr, containerId, runId) {
             let a = [...arr];
             const cont = document.getElementById(containerId);
             cont.innerHTML = '';
@@ -574,7 +975,7 @@
                 bars[j].style.height = `${(a[j] / max) * 100}%`;
                 bars[i].style.backgroundColor = '#dd6b20';
                 bars[j].style.backgroundColor = '#dd6b20';
-                await sleep(speed);
+                await compSleep(speed, runId);
                 bars[i].style.backgroundColor = '#4a5568';
                 bars[j].style.backgroundColor = '#4a5568';
             }
@@ -583,7 +984,7 @@
                 a[idx] = val;
                 bars[idx].style.height = `${(val / max) * 100}%`;
                 bars[idx].style.backgroundColor = '#3182ce';
-                await sleep(speed);
+                await compSleep(speed, runId);
                 bars[idx].style.backgroundColor = '#4a5568';
             }
 
@@ -594,7 +995,7 @@
                     for (let j = 0; j < len - i - 1; j++) {
                         bars[j].style.backgroundColor = '#3182ce';
                         bars[j + 1].style.backgroundColor = '#3182ce';
-                        await sleep(speed);
+                        await compSleep(speed, runId);
                         if (a[j] > a[j + 1]) await swapBars(j, j + 1);
                         bars[j].style.backgroundColor = '#4a5568';
                         bars[j + 1].style.backgroundColor = '#4a5568';
@@ -606,12 +1007,12 @@
                     let key = a[i];
                     let j = i - 1;
                     bars[i].style.backgroundColor = '#d69e2e';
-                    await sleep(speed);
+                    await compSleep(speed, runId);
                     while (j >= 0 && a[j] > key) {
                         a[j + 1] = a[j];
                         bars[j + 1].style.height = `${(a[j + 1] / max) * 100}%`;
                         j--;
-                        await sleep(speed);
+                        await compSleep(speed, runId);
                     }
                     a[j + 1] = key;
                     bars[j + 1].style.height = `${(key / max) * 100}%`;
@@ -625,7 +1026,7 @@
                     bars[minIdx].style.backgroundColor = '#d69e2e';
                     for (let j = i + 1; j < n; j++) {
                         bars[j].style.backgroundColor = '#3182ce';
-                        await sleep(speed);
+                        await compSleep(speed, runId);
                         if (a[j] < a[minIdx]) {
                             bars[minIdx].style.backgroundColor = '#4a5568';
                             minIdx = j;
@@ -646,7 +1047,7 @@
                         let i = low - 1;
                         for (let j = low; j <= high - 1; j++) {
                             bars[j].style.backgroundColor = '#3182ce';
-                            await sleep(speed);
+                            await compSleep(speed, runId);
                             if (a[j] < pivot) {
                                 i++;
                                 await swapBars(i, j);
@@ -708,7 +1109,7 @@
                         let temp = a[i];
                         let j;
                         bars[i].style.backgroundColor = '#d69e2e';
-                        await sleep(speed);
+                        await compSleep(speed, runId);
                         for (j = i; j >= gap && a[j - gap] > temp; j -= gap) {
                             a[j] = a[j - gap];
                             bars[j].style.height = `${(a[j] / max) * 100}%`;
@@ -739,6 +1140,7 @@
             if (isSorting) return;
             const containerComp = document.getElementById('comparison-container');
             const isVisible = containerComp.style.display === 'flex';
+            if (isVisible) detenerComparacion(); else compBaseData = [];
             containerComp.style.display = isVisible ? 'none' : 'flex';
             
             if (!isVisible) {
@@ -753,6 +1155,7 @@
         elementsSliderComp.addEventListener('input', (e) => {
             const val = e.target.value;
             labelElementsComp.innerText = `Elementos: ${val}`;
+            compBaseData = [];
             generarBarrasComparacion(val, 'container-algo1');
             generarBarrasComparacion(val, 'container-algo2');
             document.getElementById('comparison-result').innerText = '';
@@ -760,8 +1163,16 @@
 
         // Manejador del Botón Iniciar Comparación con Animación y Tiempos Simultáneos
         btnCompareStart.addEventListener('click', async () => {
+            if (compRunning) return;
             const numComp = elementsSliderComp.value;
             const baseData = generarBarrasComparacion(numComp, 'container-algo1');
+            compBaseData = [...baseData];
+            compRunning = true;
+            compPaused = false;
+            compPausaTotal = 0;
+            btnCompPause.innerText = "❚❚ Pausar";
+            const runId = ++compRunId;
+            bloquearControlesComp(true);
             // Replicar los mismos datos exactos para el contenedor 2 para una comparación justa
             const cont2 = document.getElementById('container-algo2');
             cont2.innerHTML = '';
@@ -790,26 +1201,39 @@
             // Ejecución simultánea e independiente para Método 1
             const promesa1 = (async () => {
                 let tStart = performance.now();
-                await animarAlgoritmoComparacion(algo1Name, [...baseData], 'container-algo1');
+                try {
+                    await animarAlgoritmoComparacion(algo1Name, [...baseData], 'container-algo1', runId);
+                } catch (e) {
+                    return; // detenido con Reiniciar
+                }
                 let tEnd = performance.now();
-                time1 = (tEnd - tStart).toFixed(2);
+                time1 = (tEnd - tStart - compPausaTotal).toFixed(2);
                 document.getElementById('time-algo1').innerText = `Tiempo: ${time1} ms`;
             })();
 
             // Ejecución simultánea e independiente para Método 2
             const promesa2 = (async () => {
                 let tStart = performance.now();
-                await animarAlgoritmoComparacion(algo2Name, [...baseData], 'container-algo2');
+                try {
+                    await animarAlgoritmoComparacion(algo2Name, [...baseData], 'container-algo2', runId);
+                } catch (e) {
+                    return; // detenido con Reiniciar
+                }
                 let tEnd = performance.now();
-                time2 = (tEnd - tStart).toFixed(2);
+                time2 = (tEnd - tStart - compPausaTotal).toFixed(2);
                 document.getElementById('time-algo2').innerText = `Tiempo: ${time2} ms`;
             })();
 
             // Esperar a que ambos terminen para emitir el mensaje final
             await Promise.all([promesa1, promesa2]);
+            if (runId !== compRunId) return; // la comparación fue reiniciada
 
             const resText = document.getElementById('comparison-result');
             resText.innerText = `${name1} termino con: ${time1} ms y el ${name2} termino con: ${time2} ms`;
+            compRunning = false;
+            compPaused = false;
+            btnCompPause.innerText = "❚❚ Pausar";
+            bloquearControlesComp(false);
         });
 
         // Manejador del Botón Iniciar
@@ -824,6 +1248,7 @@
             algorithmSelect.disabled = true;
 
             const selectedAlgo = algorithmSelect.value;
+            mostrarCodigo(selectedAlgo);
             
             try {
                 if (selectedAlgo === 'bubble') await bubbleSort();
@@ -837,6 +1262,7 @@
             } catch (e) {
                 // Interrupción por reinicio controlada
             }
+            limpiarResaltado();
 
             isSorting = false;
             elementsSlider.disabled = false;
@@ -857,6 +1283,8 @@
             btnPause.innerText = "❚❚ Pausar";
             array = [...originalArray];
             updateBars();
+            limpiarResaltado();
+            detenerComparacion();
             elementsSlider.disabled = false;
             btnGenerate.disabled = false;
             algorithmSelect.disabled = false;
@@ -875,7 +1303,12 @@
 
         btnGenerate.addEventListener('click', generateArray);
 
-        window.onload = generateArray;
+        algorithmSelect.addEventListener('change', () => mostrarCodigo(algorithmSelect.value));
+
+        window.onload = () => {
+            generateArray();
+            mostrarCodigo(algorithmSelect.value);
+        };
     </script>
 </body>
 </html>
