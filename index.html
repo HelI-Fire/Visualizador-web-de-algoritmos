@@ -3,85 +3,534 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HELL FIRE - Visualizador de Algoritmos</title>
+    <title>Visualizador de 8 Algoritmos de Ordenamiento</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            text-align: center;
             background-color: #121212;
             color: #ffffff;
+            font-family: Arial, sans-serif;
             margin: 0;
             padding: 20px;
         }
-        #contenedor-visualizador {
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        /* Panel de control superior */
+        .control-panel {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            background-color: #1e1e1e;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .control-group label {
+            font-size: 14px;
+            color: #b0b0b0;
+        }
+        select, input[type="range"] {
+            background-color: #2a2a2a;
+            color: #ffffff;
+            border: 1px solid #444;
+            padding: 8px 12px;
+            border-radius: 6px;
+            outline: none;
+            font-size: 14px;
+        }
+        select {
+            cursor: pointer;
+        }
+        /* Botones de acción */
+        .btn-container {
+            display: flex;
+            gap: 10px;
+        }
+        button {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+            color: #fff;
+            transition: opacity 0.2s;
+        }
+        button:hover {
+            opacity: 0.85;
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .btn-generate { background-color: #2d3748; }
+        .btn-start { background-color: #dd6b20; }
+        .btn-pause { background-color: #d69e2e; color: #121212; }
+        .btn-reset { background-color: #9b2c2c; }
+
+        /* Área de visualización de barras */
+        #array-container {
             display: flex;
             align-items: flex-end;
             justify-content: center;
-            height: 400px;
-            width: 80%;
-            margin: 20px auto;
-            background-color: #1e1e1e;
-            border: 2px solid #ff4500;
-            padding: 10px;
-            gap: 2px;
+            height: 350px;
+            gap: 4px;
+            padding: 20px;
+            background-color: #181818;
+            border-radius: 8px;
         }
-        .barra-visualizador {
-            background-color: #ff4500;
+        .bar {
+            background-color: #4a5568;
+            width: 25px;
+            display: inline-block;
             transition: height 0.05s ease;
-        }
-        button {
-            background-color: #ff4500;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            cursor: pointer;
-            font-weight: bold;
-            margin: 5px;
-            border-radius: 5px;
-        }
-        button:hover {
-            background-color: #ff6347;
-        }
-        .seccion-botones {
-            margin: 15px 0;
         }
     </style>
 </head>
 <body>
 
-    <h1>HELL FIRE - Visualizador de Algoritmos</h1>
+    <header>
+        <h1>Visualizador de Algoritmos de Ordenamiento</h1>
+        <p>Selecciona cualquiera de los 8 algoritmos, ajusta los parámetros y observa su funcionamiento.</p>
+    </header>
 
-    <!-- Contenedor donde tu motor pintará las barras -->
-    <div id="contenedor-visualizador"></div>
+    <!-- Tablero / Panel de Control Superior -->
+    <div class="control-panel">
+        <div class="control-group">
+            <label for="algorithm">Algoritmo</label>
+            <select id="algorithm">
+                <option value="bubble">Bubble Sort</option>
+                <option value="insertion">Insertion Sort</option>
+                <option value="selection">Selection Sort</option>
+                <option value="merge">Merge Sort</option>
+                <option value="quick">Quick Sort</option>
+                <option value="heap">Heap Sort</option>
+                <option value="shell">Shell Sort</option>
+                <option value="stooge">Stooge Sort</option>
+            </select>
+        </div>
 
-    <!-- Controles de Datos -->
-    <div class="seccion-botones">
-        <button onclick="actualizarVistaConDatosNuevos()">Generar Nuevo Arreglo</button>
-        <button onclick="actualizarVistaConReinicio()">Reiniciar Arreglo</button>
+        <div class="control-group">
+            <label for="elements-slider" id="label-elements">Elementos: 15</label>
+            <input type="range" id="elements-slider" min="5" max="40" value="15">
+        </div>
+
+        <div class="control-group">
+            <label for="speed-slider" id="label-speed">Velocidad: 100 ms</label>
+            <input type="range" id="speed-slider" min="10" max="500" value="100">
+        </div>
+
+        <div class="btn-container">
+            <button class="btn-generate" id="btn-generate">Generar arreglo</button>
+            <button class="btn-start" id="btn-start">▶ Iniciar</button>
+            <button class="btn-pause" id="btn-pause">❚❚ Pausar</button>
+            <button class="btn-reset" id="btn-reset">↺ Reiniciar</button>
+        </div>
     </div>
 
-    <!-- Botones de los Algoritmos solicitados (Fuerza Bruta) -->
-    <div class="seccion-botones">
-        <strong>Fuerza Bruta:</strong>
-        <button onclick="ejecutarAnimacionOrdenamiento('bubble')">Bubble Sort</button>
-        <button onclick="ejecutarAnimacionOrdenamiento('selection')">Selection Sort</button>
-        <button onclick="ejecutarAnimacionOrdenamiento('insertion')">Insertion Sort</button>
-    </div>
+    <!-- Contenedor de las barras gráficas -->
+    <div id="array-container"></div>
 
-    <!-- Botones de los Algoritmos extras que ya estaban en el repositorio -->
-    <div class="seccion-botones">
-        <strong>Otros Algoritmos:</strong>
-        <button onclick="ejecutarAnimacionOrdenamiento('quick')">Quick Sort</button>
-        <button onclick="ejecutarAnimacionOrdenamiento('merge')">Merge Sort</button>
-        <button onclick="ejecutarAnimacionOrdenamiento('gnome')">Gnome Sort</button>
-        <button onclick="ejecutarAnimacionOrdenamiento('exchange')">Exchange Sort</button>
-        <button onclick="ejecutarAnimacionOrdenamiento('stooge')">Stooge Sort</button>
-    </div>
+    <script>
+        const container = document.getElementById('array-container');
+        const elementsSlider = document.getElementById('elements-slider');
+        const speedSlider = document.getElementById('speed-slider');
+        const labelElements = document.getElementById('label-elements');
+        const labelSpeed = document.getElementById('label-speed');
+        
+        const btnGenerate = document.getElementById('btn-generate');
+        const btnStart = document.getElementById('btn-start');
+        const btnPause = document.getElementById('btn-pause');
+        const btnReset = document.getElementById('btn-reset');
+        const algorithmSelect = document.getElementById('algorithm');
 
-    <!-- Enlaces a los scripts del equipo en orden correcto -->
-    <script src="datos.js"></script>
-    <script src="ordenamientos.js"></script>
-    <script src="render.js"></script>
+        let array = [];
+        let originalArray = [];
+        let isSorting = false;
+        let isPaused = false;
+        let stopRequested = false;
 
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        async function checkControlState() {
+            if (stopRequested) throw new Error("Stopped");
+            while (isPaused) {
+                await sleep(100);
+                if (stopRequested) throw new Error("Stopped");
+            }
+        }
+
+        function generateArray() {
+            if (isSorting) return;
+            container.innerHTML = '';
+            array = [];
+            const numElements = elementsSlider.value;
+            
+            for (let i = 0; i < numElements; i++) {
+                const value = Math.floor(Math.random() * 100) + 15;
+                array.push(value);
+                
+                const bar = document.createElement('div');
+                bar.classList.add('bar');
+                bar.style.height = `${value * 3}px`;
+                container.appendChild(bar);
+            }
+            originalArray = [...array];
+        }
+
+        function updateBars() {
+            const bars = document.getElementsByClassName('bar');
+            for (let i = 0; i < array.length; i++) {
+                bars[i].style.height = `${array[i] * 3}px`;
+                bars[i].style.backgroundColor = '#4a5568';
+            }
+        }
+
+        // --- 1. BUBBLE SORT ---
+        async function bubbleSort() {
+            const bars = document.getElementsByClassName('bar');
+            let len = array.length;
+            for (let i = 0; i < len; i++) {
+                for (let j = 0; j < len - i - 1; j++) {
+                    await checkControlState();
+                    bars[j].style.backgroundColor = '#3182ce';
+                    bars[j + 1].style.backgroundColor = '#3182ce';
+                    let speed = parseInt(speedSlider.value);
+                    await sleep(speed);
+
+                    if (array[j] > array[j + 1]) {
+                        let temp = array[j];
+                        array[j] = array[j + 1];
+                        array[j + 1] = temp;
+                        bars[j].style.height = `${array[j] * 3}px`;
+                        bars[j + 1].style.height = `${array[j + 1] * 3}px`;
+                        bars[j].style.backgroundColor = '#dd6b20';
+                        bars[j + 1].style.backgroundColor = '#dd6b20';
+                        await sleep(speed);
+                    }
+                    bars[j].style.backgroundColor = '#4a5568';
+                    bars[j + 1].style.backgroundColor = '#4a5568';
+                }
+                bars[len - i - 1].style.backgroundColor = '#38a169';
+            }
+        }
+
+        // --- 2. INSERTION SORT ---
+        async function insertionSort() {
+            const bars = document.getElementsByClassName('bar');
+            for (let i = 1; i < array.length; i++) {
+                let key = array[i];
+                let j = i - 1;
+                await checkControlState();
+                bars[i].style.backgroundColor = '#d69e2e';
+
+                while (j >= 0 && array[j] > key) {
+                    await checkControlState();
+                    bars[j].style.backgroundColor = '#3182ce';
+                    bars[j + 1].style.backgroundColor = '#3182ce';
+                    let speed = parseInt(speedSlider.value);
+                    await sleep(speed);
+
+                    array[j + 1] = array[j];
+                    bars[j + 1].style.height = `${array[j + 1] * 3}px`;
+                    bars[j].style.backgroundColor = '#4a5568';
+                    bars[j + 1].style.backgroundColor = '#4a5568';
+                    j = j - 1;
+                }
+                array[j + 1] = key;
+                bars[j + 1].style.height = `${key * 3}px`;
+            }
+            for (let i = 0; i < bars.length; i++) bars[i].style.backgroundColor = '#38a169';
+        }
+
+        // --- 3. SELECTION SORT ---
+        async function selectionSort() {
+            const bars = document.getElementsByClassName('bar');
+            let n = array.length;
+            for (let i = 0; i < n; i++) {
+                let minIdx = i;
+                bars[minIdx].style.backgroundColor = '#d69e2e';
+                for (let j = i + 1; j < n; j++) {
+                    await checkControlState();
+                    bars[j].style.backgroundColor = '#3182ce';
+                    let speed = parseInt(speedSlider.value);
+                    await sleep(speed);
+
+                    if (array[j] < array[minIdx]) {
+                        bars[minIdx].style.backgroundColor = '#4a5568';
+                        minIdx = j;
+                        bars[minIdx].style.backgroundColor = '#d69e2e';
+                    } else {
+                        bars[j].style.backgroundColor = '#4a5568';
+                    }
+                }
+                if (minIdx !== i) {
+                    let temp = array[i];
+                    array[i] = array[minIdx];
+                    array[minIdx] = temp;
+                    bars[i].style.height = `${array[i] * 3}px`;
+                    bars[minIdx].style.height = `${array[minIdx] * 3}px`;
+                }
+                bars[minIdx].style.backgroundColor = '#4a5568';
+                bars[i].style.backgroundColor = '#38a169';
+            }
+        }
+
+        // --- 4. MERGE SORT ---
+        async function mergeSort(start = 0, end = array.length - 1) {
+            if (start >= end) return;
+            const mid = Math.floor((start + end) / 2);
+            await mergeSort(start, mid);
+            await mergeSort(mid + 1, end);
+            await merge(start, mid, end);
+        }
+
+        async function merge(start, mid, end) {
+            const bars = document.getElementsByClassName('bar');
+            let tempArray = [];
+            let i = start, j = mid + 1;
+
+            while (i <= mid && j <= end) {
+                await checkControlState();
+                if (array[i] <= array[j]) {
+                    tempArray.push(array[i++]);
+                } else {
+                    tempArray.push(array[j++]);
+                }
+            }
+            while (i <= mid) tempArray.push(array[i++]);
+            while (j <= end) tempArray.push(array[j++]);
+
+            for (let k = 0; k < tempArray.length; k++) {
+                await checkControlState();
+                let idx = start + k;
+                array[idx] = tempArray[k];
+                bars[idx].style.height = `${array[idx] * 3}px`;
+                bars[idx].style.backgroundColor = '#dd6b20';
+                let speed = parseInt(speedSlider.value);
+                await sleep(speed);
+                bars[idx].style.backgroundColor = (end - start === array.length - 1) ? '#38a169' : '#4a5568';
+            }
+        }
+
+        // --- 5. QUICK SORT ---
+        async function quickSort(low = 0, high = array.length - 1) {
+            if (low < high) {
+                let pi = await partition(low, high);
+                await quickSort(low, pi - 1);
+                await quickSort(pi + 1, high);
+            }
+            if (low === 0 && high === array.length - 1) {
+                const bars = document.getElementsByClassName('bar');
+                for (let i = 0; i < bars.length; i++) bars[i].style.backgroundColor = '#38a169';
+            }
+        }
+
+        async function partition(low, high) {
+            const bars = document.getElementsByClassName('bar');
+            let pivot = array[high];
+            bars[high].style.backgroundColor = '#e53e3e';
+            let i = (low - 1);
+
+            for (let j = low; j <= high - 1; j++) {
+                await checkControlState();
+                bars[j].style.backgroundColor = '#3182ce';
+                let speed = parseInt(speedSlider.value);
+                await sleep(speed);
+
+                if (array[j] < pivot) {
+                    i++;
+                    let temp = array[i];
+                    array[i] = array[j];
+                    array[j] = temp;
+                    bars[i].style.height = `${array[i] * 3}px`;
+                    bars[j].style.height = `${array[j] * 3}px`;
+                }
+                bars[j].style.backgroundColor = '#4a5568';
+            }
+            let temp = array[i + 1];
+            array[i + 1] = array[high];
+            array[high] = temp;
+            bars[i + 1].style.height = `${array[i + 1] * 3}px`;
+            bars[high].style.height = `${array[high] * 3}px`;
+            bars[high].style.backgroundColor = '#4a5568';
+            return (i + 1);
+        }
+
+        // --- 6. HEAP SORT ---
+        async function heapSort() {
+            const bars = document.getElementsByClassName('bar');
+            let n = array.length;
+
+            for (let i = Math.floor(n / 2) - 1; i >= 0; i--) {
+                await heapify(n, i);
+            }
+
+            for (let i = n - 1; i > 0; i--) {
+                await checkControlState();
+                let temp = array[0];
+                array[0] = array[i];
+                array[i] = temp;
+                bars[0].style.height = `${array[0] * 3}px`;
+                bars[i].style.height = `${array[i] * 3}px`;
+                bars[i].style.backgroundColor = '#38a169';
+                await heapify(i, 0);
+            }
+            bars[0].style.backgroundColor = '#38a169';
+        }
+
+        async function heapify(n, i) {
+            const bars = document.getElementsByClassName('bar');
+            let largest = i;
+            let l = 2 * i + 1;
+            let r = 2 * i + 2;
+
+            if (l < n && array[l] > array[largest]) largest = l;
+            if (r < n && array[r] > array[largest]) largest = r;
+
+            if (largest !== i) {
+                await checkControlState();
+                let temp = array[i];
+                array[i] = array[largest];
+                array[largest] = temp;
+                bars[i].style.height = `${array[i] * 3}px`;
+                bars[largest].style.height = `${array[largest] * 3}px`;
+                bars[i].style.backgroundColor = '#3182ce';
+                bars[largest].style.backgroundColor = '#3182ce';
+                let speed = parseInt(speedSlider.value);
+                await sleep(speed);
+                bars[i].style.backgroundColor = '#4a5568';
+                bars[largest].style.backgroundColor = '#4a5568';
+                await heapify(n, largest);
+            }
+        }
+
+        // --- 7. SHELL SORT ---
+        async function shellSort() {
+            const bars = document.getElementsByClassName('bar');
+            let n = array.length;
+            for (let gap = Math.floor(n / 2); gap > 0; gap = Math.floor(gap / 2)) {
+                for (let i = gap; i < n; i++) {
+                    let temp = array[i];
+                    let j;
+                    await checkControlState();
+                    bars[i].style.backgroundColor = '#d69e2e';
+                    let speed = parseInt(speedSlider.value);
+                    await sleep(speed);
+
+                    for (j = i; j >= gap && array[j - gap] > temp; j -= gap) {
+                        array[j] = array[j - gap];
+                        bars[j].style.height = `${array[j] * 3}px`;
+                    }
+                    array[j] = temp;
+                    bars[j].style.height = `${temp * 3}px`;
+                    bars[i].style.backgroundColor = '#4a5568';
+                }
+            }
+            for (let i = 0; i < bars.length; i++) bars[i].style.backgroundColor = '#38a169';
+        }
+
+        // --- 8. STOOGE SORT ---
+        async function stoogeSort(l = 0, h = array.length - 1) {
+            const bars = document.getElementsByClassName('bar');
+            await checkControlState();
+            let speed = parseInt(speedSlider.value);
+
+            if (array[l] > array[h]) {
+                let t = array[l];
+                array[l] = array[h];
+                array[h] = t;
+                bars[l].style.height = `${array[l] * 3}px`;
+                bars[h].style.height = `${array[h] * 3}px`;
+                bars[l].style.backgroundColor = '#dd6b20';
+                bars[h].style.backgroundColor = '#dd6b20';
+                await sleep(speed);
+                bars[l].style.backgroundColor = '#4a5568';
+                bars[h].style.backgroundColor = '#4a5568';
+            }
+            if (h - l + 1 > 2) {
+                let t = Math.floor((h - l + 1) / 3);
+                await stoogeSort(l, h - t);
+                await stoogeSort(l + t, h);
+                await stoogeSort(l, h - t);
+            }
+            if (l === 0 && h === array.length - 1) {
+                for (let i = 0; i < bars.length; i++) bars[i].style.backgroundColor = '#38a169';
+            }
+        }
+
+        // Manejador del Botón Iniciar
+        btnStart.addEventListener('click', async () => {
+            if (isSorting) return;
+            isSorting = true;
+            stopRequested = false;
+            isPaused = false;
+
+            elementsSlider.disabled = true;
+            btnGenerate.disabled = true;
+            algorithmSelect.disabled = true;
+
+            const selectedAlgo = algorithmSelect.value;
+            
+            try {
+                if (selectedAlgo === 'bubble') await bubbleSort();
+                else if (selectedAlgo === 'insertion') await insertionSort();
+                else if (selectedAlgo === 'selection') await selectionSort();
+                else if (selectedAlgo === 'merge') await mergeSort();
+                else if (selectedAlgo === 'quick') await quickSort();
+                else if (selectedAlgo === 'heap') await heapSort();
+                else if (selectedAlgo === 'shell') await shellSort();
+                else if (selectedAlgo === 'stooge') await stoogeSort();
+            } catch (e) {
+                // Interrupción por reinicio controlada
+            }
+
+            isSorting = false;
+            elementsSlider.disabled = false;
+            btnGenerate.disabled = false;
+            algorithmSelect.disabled = false;
+        });
+
+        btnPause.addEventListener('click', () => {
+            if (!isSorting) return;
+            isPaused = !isPaused;
+            btnPause.innerText = isPaused ? "▶ Reanudar" : "❚❚ Pausar";
+        });
+
+        btnReset.addEventListener('click', () => {
+            stopRequested = true;
+            isSorting = false;
+            isPaused = false;
+            btnPause.innerText = "❚❚ Pausar";
+            array = [...originalArray];
+            updateBars();
+            elementsSlider.disabled = false;
+            btnGenerate.disabled = false;
+            algorithmSelect.disabled = false;
+        });
+
+        elementsSlider.addEventListener('input', (e) => {
+            labelElements.innerText = `Elementos: ${e.target.value}`;
+            generateArray();
+        });
+
+        speedSlider.addEventListener('input', (e) => {
+            labelSpeed.innerText = `Velocidad: ${e.target.value} ms`;
+        });
+
+        btnGenerate.addEventListener('click', generateArray);
+
+        window.onload = generateArray;
+    </script>
 </body>
 </html>
