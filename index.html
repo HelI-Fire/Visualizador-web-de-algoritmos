@@ -27,7 +27,7 @@
         }
         .barra-visualizador {
             background-color: #ff4500;
-            transition: height 0.1s ease;
+            transition: height 0.05s ease;
         }
         button {
             background-color: #ff4500;
@@ -42,6 +42,9 @@
         button:hover {
             background-color: #ff6347;
         }
+        .seccion-botones {
+            margin: 15px 0;
+        }
     </style>
 </head>
 <body>
@@ -51,20 +54,31 @@
     <!-- Contenedor donde tu motor pintará las barras -->
     <div id="contenedor-visualizador"></div>
 
-    <!-- Controles principales -->
-    <div>
+    <!-- Controles de Datos -->
+    <div class="seccion-botones">
         <button onclick="actualizarVistaConDatosNuevos()">Generar Nuevo Arreglo</button>
         <button onclick="actualizarVistaConReinicio()">Reiniciar Arreglo</button>
     </div>
 
-    <!-- Botones para los 3 algoritmos de fuerza bruta requeridos -->
-    <div>
+    <!-- Botones de los Algoritmos solicitados (Fuerza Bruta) -->
+    <div class="seccion-botones">
+        <strong>Fuerza Bruta:</strong>
         <button onclick="ejecutarAnimacionOrdenamiento('bubble')">Bubble Sort</button>
         <button onclick="ejecutarAnimacionOrdenamiento('selection')">Selection Sort</button>
         <button onclick="ejecutarAnimacionOrdenamiento('insertion')">Insertion Sort</button>
     </div>
 
-    <!-- Enlaces a los scripts del equipo en orden de dependencia -->
+    <!-- Botones de los Algoritmos extras que ya estaban en el repositorio -->
+    <div class="seccion-botones">
+        <strong>Otros Algoritmos:</strong>
+        <button onclick="ejecutarAnimacionOrdenamiento('quick')">Quick Sort</button>
+        <button onclick="ejecutarAnimacionOrdenamiento('merge')">Merge Sort</button>
+        <button onclick="ejecutarAnimacionOrdenamiento('gnome')">Gnome Sort</button>
+        <button onclick="ejecutarAnimacionOrdenamiento('exchange')">Exchange Sort</button>
+        <button onclick="ejecutarAnimacionOrdenamiento('stooge')">Stooge Sort</button>
+    </div>
+
+    <!-- Enlaces a los scripts del equipo en orden correcto -->
     <script src="datos.js"></script>
     <script src="ordenamientos.js"></script>
     <script src="render.js"></script>

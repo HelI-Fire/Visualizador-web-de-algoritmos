@@ -31,15 +31,22 @@ function actualizarVistaConReinicio() {
     renderizarArreglo();
 }
 
-// Función para ejecutar la animación visual de cualquier algoritmo de ordenamiento
+// Función para ejecutar la animación visual de cualquier algoritmo disponible
 async function ejecutarAnimacionOrdenamiento(algoritmoNombre) {
     const datosOriginales = obtenerArregloActual();
     if (datosOriginales.length === 0) return;
 
     let resultado;
+    
+    // Algoritmos de fuerza bruta y avanzados
     if (algoritmoNombre === 'bubble') resultado = bubbleSort(datosOriginales);
     else if (algoritmoNombre === 'selection') resultado = selectionSort(datosOriginales);
     else if (algoritmoNombre === 'insertion') resultado = insertionSort(datosOriginales);
+    else if (algoritmoNombre === 'quick') resultado = quickSort(datosOriginales);
+    else if (algoritmoNombre === 'merge') resultado = mergeSort(datosOriginales);
+    else if (algoritmoNombre === 'gnome') resultado = gnomeSort(datosOriginales);
+    else if (algoritmoNombre === 'exchange') resultado = exchangeSort(datosOriginales);
+    else if (algoritmoNombre === 'stooge') resultado = stoogeSort(datosOriginales);
     else return;
 
     const { events } = resultado;
@@ -48,11 +55,9 @@ async function ejecutarAnimacionOrdenamiento(algoritmoNombre) {
     const maxValor = Math.max(...arregloTemporal, 100);
 
     for (let evento of events) {
-        await new Promise(resolve => setTimeout(resolve, 30)); // Velocidad de animación
+        await new Promise(resolve => setTimeout(resolve, 20)); // Velocidad de la animación
 
-        if (evento.type === "compare") {
-            // Opcional: cambiar color al comparar
-        } else if (evento.type === "swap") {
+        if (evento.type === "swap") {
             const [i, j] = evento.indices;
             [arregloTemporal[i], arregloTemporal[j]] = [arregloTemporal[j], arregloTemporal[i]];
             if (barras[i]) barras[i].style.height = `${(arregloTemporal[i] / maxValor) * 100}%`;
@@ -61,6 +66,9 @@ async function ejecutarAnimacionOrdenamiento(algoritmoNombre) {
             const { index, value } = evento;
             arregloTemporal[index] = value;
             if (barras[index]) barras[index].style.height = `${(value / maxValor) * 100}%`;
+        } else if (evento.type === "finish") {
+            // Al finalizar aseguramos el renderizado exacto del arreglo ordenado
+            renderizarArreglo(evento.array);
         }
     }
 }
