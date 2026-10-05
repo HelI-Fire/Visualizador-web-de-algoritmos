@@ -7,10 +7,10 @@ Pagina URL:
 https://heli-fire.github.io/Visualizador-web-de-algoritmos/
 
 Integrantes: 
-González López Aldo Lissandro
-Castañeda Carrillo Isaac 
-Daza Esparza Logan Ronet
-Santana Rodriguez Angel Ulises
+1. González López Aldo Lissandro
+2. Castañeda Carrillo Isaac 
+3. Daza Esparza Logan Ronet
+4. Santana Rodriguez Angel Ulises
 
 Descripción: 
 En este proyecto se tomo como tarea la realizacion de una pagina web que demuestre visualmente diferentes metodos de ordenamiento el como funciona cada uno y tiempo que tarda uno.
@@ -19,20 +19,20 @@ Objetivo:
 Proveer una herramienta visual e interactiva basada en web para comprender, analizar y comparar el rendimiento y funcionamiento de diferentes algoritmos de ordenamiento mediante gráficas dinámicas.
 
 Algoritmos implementados:
-Bubble sort
-Insertion sort
-Selection sort
-Merge sort
-Quick sort
-Gnome sort
-Exchange sort
-Stooge sort
+1. Bubble sort
+2. Insertion sort
+3. Selection sort
+4. Merge sort
+5. Quick sort
+6. Gnome sort
+7. Exchange sort
+8. Stooge sort
 
 Tecnologias utilizadas:
-Gemini Ai Pro
-GitHub Pages
-Visual Studio Code
-Google meet
+1. Gemini Ai Pro
+2. GitHub Pages
+3. Visual Studio Code
+4. Google meet
 
 Como ejecutar el proyecto:
 Para ejecutar la pagina web, es necesario abrir el link que dirige al apartado de los metodos de ordenamiento, este contiene botones intuitivos para iniciar el metodo de ordenamiento seleccionado, su tamaño de arreglo y velocidad, de igual forma contiene un boton para comprar dos metodos de ordenamiento y comparar cual termina antes y cual despues.
