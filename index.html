@@ -23,8 +23,8 @@
                 <option value="selection">Selection Sort</option>
                 <option value="merge">Merge Sort</option>
                 <option value="quick">Quick Sort</option>
-                <option value="heap">Heap Sort</option>
-                <option value="shell">Shell Sort</option>
+                <option value="gnome">Gnome Sort</option>
+                <option value="exchange">Exchange Sort</option>
                 <option value="stooge">Stooge Sort</option>
             </select>
         </div>
@@ -48,6 +48,13 @@
         </div>
     </div>
 
+    <!-- Nombre, complejidad temporal y métricas del algoritmo seleccionado -->
+    <section id="info-algoritmo">
+        <h2 id="info-nombre">Bubble Sort</h2>
+        <p id="info-complejidad"></p>
+        <p id="info-metricas"></p>
+    </section>
+
     <!-- Barras gráficas (izquierda) y código del algoritmo (derecha) -->
     <div class="main-area">
         <div id="array-container"></div>
@@ -57,6 +64,7 @@
         </aside>
     </div>
 
+<<<<<<< HEAD
     <!-- Tabla de estadísticas: comparaciones, intercambios y tiempo -->
     <div id="stats-panel">
         <div class="stats-header">
@@ -85,6 +93,11 @@
     <!-- Panel de comparación con selectores, selector de tamaño y animación simultánea -->
     <div id="comparison-container" style="display: none; margin-top: 20px; flex-direction: column; gap: 15px; background: #181818; padding: 20px; border-radius: 8px;">
         <div style="display: flex; justify-content: center; align-items: flex-end; gap: 20px; flex-wrap: wrap;">
+=======
+    <!-- Panel de comparación: mismos datos para los dos métodos, con métricas y animación simultánea -->
+    <div id="comparison-container" style="display: none;">
+        <div class="comp-controles">
+>>>>>>> 65492aa8384b2a678ed0e27ee94c45a22dcd5b02
             <div class="control-group">
                 <label for="algo1-select">Método 1:</label>
                 <select id="algo1-select">
@@ -93,8 +106,8 @@
                     <option value="selection">Selection Sort</option>
                     <option value="merge">Merge Sort</option>
                     <option value="quick">Quick Sort</option>
-                    <option value="heap">Heap Sort</option>
-                    <option value="shell">Shell Sort</option>
+                    <option value="gnome">Gnome Sort</option>
+                    <option value="exchange">Exchange Sort</option>
                     <option value="stooge">Stooge Sort</option>
                 </select>
             </div>
@@ -106,8 +119,8 @@
                     <option value="insertion">Insertion Sort</option>
                     <option value="selection">Selection Sort</option>
                     <option value="merge">Merge Sort</option>
-                    <option value="heap">Heap Sort</option>
-                    <option value="shell">Shell Sort</option>
+                    <option value="gnome">Gnome Sort</option>
+                    <option value="exchange">Exchange Sort</option>
                     <option value="stooge">Stooge Sort</option>
                 </select>
             </div>
@@ -115,50 +128,77 @@
                 <label for="elements-slider-comp" id="label-elements-comp">Elementos: 15</label>
                 <input type="range" id="elements-slider-comp" min="5" max="40" value="15">
             </div>
+            <button class="btn-generate" id="btn-comp-generate">Nuevos datos</button>
             <button class="btn-compare-start" id="btn-compare-start">▶ Iniciar Comparación</button>
             <button class="btn-pause" id="btn-comp-pause">❚❚ Pausar</button>
             <button class="btn-reset" id="btn-comp-reset">↺ Reiniciar</button>
         </div>
 
-        <div style="display: flex; gap: 20px; justify-content: space-around; flex-wrap: wrap;">
-            <div style="flex: 1; min-width: 250px; background: #121212; padding: 15px; border-radius: 8px; text-align: center;">
+        <div class="comp-paneles">
+            <div class="comp-panel">
                 <h3 id="title-algo1">Método 1</h3>
-                <p id="time-algo1">Tiempo: 0 ms</p>
-                <div id="container-algo1" style="display: flex; align-items: flex-end; justify-content: center; height: 250px; gap: 2px;"></div>
+                <p class="comp-complejidad" id="complexity-algo1"></p>
+                <ul class="comp-metricas">
+                    <li>Comparaciones: <b id="cmp-algo1">0</b></li>
+                    <li>Intercambios: <b id="swp-algo1">0</b></li>
+                    <li>Escrituras: <b id="wrt-algo1">0</b></li>
+                    <li>Tiempo de cómputo: <b id="cpu-algo1">—</b></li>
+                    <li>Tiempo de animación: <b id="time-algo1">0 ms</b></li>
+                </ul>
+                <div id="container-algo1" class="bars-comp"></div>
             </div>
-            <div style="flex: 1; min-width: 250px; background: #121212; padding: 15px; border-radius: 8px; text-align: center;">
+            <div class="comp-panel">
                 <h3 id="title-algo2">Método 2</h3>
-                <p id="time-algo2">Tiempo: 0 ms</p>
-                <div id="container-algo2" style="display: flex; align-items: flex-end; justify-content: center; height: 250px; gap: 2px;"></div>
+                <p class="comp-complejidad" id="complexity-algo2"></p>
+                <ul class="comp-metricas">
+                    <li>Comparaciones: <b id="cmp-algo2">0</b></li>
+                    <li>Intercambios: <b id="swp-algo2">0</b></li>
+                    <li>Escrituras: <b id="wrt-algo2">0</b></li>
+                    <li>Tiempo de cómputo: <b id="cpu-algo2">—</b></li>
+                    <li>Tiempo de animación: <b id="time-algo2">0 ms</b></li>
+                </ul>
+                <div id="container-algo2" class="bars-comp"></div>
             </div>
         </div>
-        <div id="comparison-result" style="text-align: center; font-size: 18px; font-weight: bold; color: #38a169;"></div>
+        <div id="comparison-result"></div>
     </div>
 
+    <!-- Módulos del proyecto -->
+    <script src="datos.js"></script>
+    <script src="ordenamientos.js"></script>
+    <script src="codigos.js"></script>
+    <script src="render.js"></script>
+
     <script>
+        // --- CONTROLES DE LA PÁGINA ---
+        // Los algoritmos están en ordenamientos.js, los datos en datos.js y el dibujo en render.js.
         const container = document.getElementById('array-container');
         const elementsSlider = document.getElementById('elements-slider');
         const speedSlider = document.getElementById('speed-slider');
         const labelElements = document.getElementById('label-elements');
         const labelSpeed = document.getElementById('label-speed');
-        
+
         const btnGenerate = document.getElementById('btn-generate');
         const btnStart = document.getElementById('btn-start');
         const btnPause = document.getElementById('btn-pause');
         const btnReset = document.getElementById('btn-reset');
         const btnCompare = document.getElementById('btn-compare');
-        const btnCompareStart = document.getElementById('btn-compare-start');
         const algorithmSelect = document.getElementById('algorithm');
 
+        const btnCompareStart = document.getElementById('btn-compare-start');
+        const btnCompPause = document.getElementById('btn-comp-pause');
+        const btnCompReset = document.getElementById('btn-comp-reset');
+        const btnCompGenerate = document.getElementById('btn-comp-generate');
+        const algo1Select = document.getElementById('algo1-select');
+        const algo2Select = document.getElementById('algo2-select');
         const elementsSliderComp = document.getElementById('elements-slider-comp');
         const labelElementsComp = document.getElementById('label-elements-comp');
 
-        let array = [];
-        let originalArray = [];
         let isSorting = false;
         let isPaused = false;
-        let stopRequested = false;
+        let mainRunId = 0;   // identifica la ejecución vigente; al cambiar, la anterior se cancela
 
+<<<<<<< HEAD
         // --- ESTADÍSTICAS: comparaciones, intercambios y tiempo ---
         let statComp = 0, statSwap = 0, statMs = 0, statLast = 0;
         let statTimer = null;
@@ -226,49 +266,36 @@
                 bar.appendChild(s);
             }
             s.textContent = v;
+=======
+        const velocidadActual = () => parseInt(speedSlider.value);
+
+        // --- INFORMACIÓN DEL ALGORITMO SELECCIONADO (nombre, complejidad y métricas) ---
+        function mostrarInfoAlgoritmo(clave) {
+            const info = ALGORITMOS[clave];
+            const c = info.complejidad;
+            document.getElementById('info-nombre').innerText = info.nombre;
+            document.getElementById('info-complejidad').innerText =
+                `Complejidad temporal: mejor caso ${c.mejor} · caso promedio ${c.promedio} · peor caso ${c.peor}`;
+>>>>>>> 65492aa8384b2a678ed0e27ee94c45a22dcd5b02
         }
 
-        // Cada vez que una barra cambie de altura, actualiza su número
-        new MutationObserver(muts => {
-            muts.forEach(m => {
-                if (m.target.classList.contains('bar')) etiquetar(m.target);
-            });
-        }).observe(container, { attributes: true, attributeFilter: ['style'], subtree: true });
-
-        function sleep(ms) {
-            return new Promise(resolve => setTimeout(resolve, ms));
+        function mostrarMetricasPrincipal(m) {
+            document.getElementById('info-metricas').innerText =
+                `Comparaciones: ${m.comparaciones} · Intercambios: ${m.intercambios} · Escrituras: ${m.escrituras}`;
         }
 
-        async function checkControlState() {
-            if (stopRequested) throw new Error("Stopped");
-            while (isPaused) {
-                await sleep(100);
-                if (stopRequested) throw new Error("Stopped");
-            }
-        }
-
+        // --- VISUALIZACIÓN INDIVIDUAL ---
         function generateArray() {
             if (isSorting) return;
-            container.innerHTML = '';
             detenerComparacion();
             document.getElementById('comparison-container').style.display = 'none';
             document.getElementById('comparison-result').innerText = '';
-            array = [];
-            const numElements = elementsSlider.value;
-            
-            for (let i = 0; i < numElements; i++) {
-                const value = Math.floor(Math.random() * 100) + 15;
-                array.push(value);
-                
-                const bar = document.createElement('div');
-                bar.classList.add('bar');
-                bar.style.height = `${value * 3}px`;
-                container.appendChild(bar);
-                etiquetar(bar);
-            }
-            originalArray = [...array];
+            generarArregloAleatorio(parseInt(elementsSlider.value), 15, 114);
+            renderizarArreglo(container, obtenerArregloActual());
+            mostrarMetricasPrincipal(nuevasMetricas());
         }
 
+<<<<<<< HEAD
         function updateBars() {
             const bars = document.getElementsByClassName('bar');
             for (let i = 0; i < array.length; i++) {
@@ -1206,37 +1233,73 @@
             bloquearControlesComp(false);
         });
 
+=======
+>>>>>>> 65492aa8384b2a678ed0e27ee94c45a22dcd5b02
         // Manejador del Botón Iniciar
         btnStart.addEventListener('click', async () => {
             if (isSorting) return;
+            const datos = obtenerArregloActual();
+            if (datos.length === 0) return;
+
             isSorting = true;
-            stopRequested = false;
             isPaused = false;
+            btnPause.innerText = "❚❚ Pausar";
+            const miRun = ++mainRunId;
 
             elementsSlider.disabled = true;
             btnGenerate.disabled = true;
             algorithmSelect.disabled = true;
 
+<<<<<<< HEAD
             const selectedAlgo = algorithmSelect.value;
             mostrarCodigo(selectedAlgo);
             iniciarEstadisticas();
             let interrumpido = false;
             
+=======
+            const clave = algorithmSelect.value;
+            mostrarCodigo(clave);
+            mostrarInfoAlgoritmo(clave);
+            renderizarArreglo(container, datos);   // siempre se parte de los datos originales
+            const metricas = nuevasMetricas();
+            mostrarMetricasPrincipal(metricas);
+
+            const { events } = ALGORITMOS[clave].ejecutar(datos);
+
+            // Espera si está en pausa y se detiene si se reinició
+            const puntoControl = async () => {
+                if (miRun !== mainRunId) throw new Error("Stopped");
+                while (isPaused) {
+                    await esperar(100);
+                    if (miRun !== mainRunId) throw new Error("Stopped");
+                }
+            };
+
+>>>>>>> 65492aa8384b2a678ed0e27ee94c45a22dcd5b02
             try {
-                if (selectedAlgo === 'bubble') await bubbleSort();
-                else if (selectedAlgo === 'insertion') await insertionSort();
-                else if (selectedAlgo === 'selection') await selectionSort();
-                else if (selectedAlgo === 'merge') await mergeSort();
-                else if (selectedAlgo === 'quick') await quickSort();
-                else if (selectedAlgo === 'heap') await heapSort();
-                else if (selectedAlgo === 'shell') await shellSort();
-                else if (selectedAlgo === 'stooge') await stoogeSort();
+                await reproducirEventos({
+                    contenedor: container,
+                    datos: datos,
+                    eventos: events,
+                    velocidad: velocidadActual,
+                    puntoControl: puntoControl,
+                    alEvento: (evento) => {
+                        sumarMetrica(metricas, evento);
+                        mostrarMetricasPrincipal(metricas);
+                        resaltarEvento(clave, evento);
+                    }
+                });
             } catch (e) {
                 interrumpido = true; // Interrupción por reinicio controlada
             }
+<<<<<<< HEAD
             limpiarResaltado();
             terminarEstadisticas(interrumpido);
+=======
+>>>>>>> 65492aa8384b2a678ed0e27ee94c45a22dcd5b02
 
+            if (miRun !== mainRunId) return;   // se reinició: el botón Reiniciar ya dejó todo listo
+            limpiarResaltado();
             isSorting = false;
             elementsSlider.disabled = false;
             btnGenerate.disabled = false;
@@ -1250,12 +1313,13 @@
         });
 
         btnReset.addEventListener('click', () => {
-            stopRequested = true;
+            mainRunId++;
             isSorting = false;
             isPaused = false;
             btnPause.innerText = "❚❚ Pausar";
-            array = [...originalArray];
-            updateBars();
+            reiniciarArreglo();
+            renderizarArreglo(container, obtenerArregloActual());
+            mostrarMetricasPrincipal(nuevasMetricas());
             limpiarResaltado();
             detenerComparacion();
             elementsSlider.disabled = false;
@@ -1276,11 +1340,190 @@
 
         btnGenerate.addEventListener('click', generateArray);
 
-        algorithmSelect.addEventListener('change', () => mostrarCodigo(algorithmSelect.value));
+        algorithmSelect.addEventListener('change', () => {
+            mostrarCodigo(algorithmSelect.value);
+            mostrarInfoAlgoritmo(algorithmSelect.value);
+            mostrarMetricasPrincipal(nuevasMetricas());
+            limpiarResaltado();
+        });
+
+        // --- COMPARACIÓN DE DOS MÉTODOS (control independiente: pausar / reiniciar) ---
+        let compRunning = false;     // hay una comparación animándose
+        let compPaused = false;      // la comparación está en pausa
+        let compRunId = 0;           // identifica la ejecución vigente; al cambiar, las anteriores se cancelan
+        let compPauseInicio = 0;
+        let compPausaTotal = 0;      // ms en pausa, para no contarlos en el tiempo de animación
+
+        function bloquearControlesComp(bloquear) {
+            algo1Select.disabled = bloquear;
+            algo2Select.disabled = bloquear;
+            elementsSliderComp.disabled = bloquear;
+            btnCompareStart.disabled = bloquear;
+            btnCompGenerate.disabled = bloquear;
+        }
+
+        // Cancela cualquier comparación en curso y deja los controles listos
+        function detenerComparacion() {
+            compRunId++;
+            compRunning = false;
+            compPaused = false;
+            btnCompPause.innerText = "❚❚ Pausar";
+            bloquearControlesComp(false);
+        }
+
+        function mostrarMetricasComp(n, m) {
+            document.getElementById(`cmp-algo${n}`).innerText = m.comparaciones;
+            document.getElementById(`swp-algo${n}`).innerText = m.intercambios;
+            document.getElementById(`wrt-algo${n}`).innerText = m.escrituras;
+        }
+
+        // Deja el panel n con el nombre, la complejidad y las métricas en cero
+        function actualizarPanelComparacion(n, clave) {
+            const info = ALGORITMOS[clave];
+            const c = info.complejidad;
+            document.getElementById(`title-algo${n}`).innerText = info.nombre;
+            document.getElementById(`complexity-algo${n}`).innerText =
+                `Mejor ${c.mejor} · Promedio ${c.promedio} · Peor ${c.peor}`;
+            mostrarMetricasComp(n, nuevasMetricas());
+            document.getElementById(`cpu-algo${n}`).innerText = '—';
+            document.getElementById(`time-algo${n}`).innerText = '0 ms';
+        }
+
+        // Dibuja los MISMOS datos en los dos paneles y limpia los resultados
+        function prepararComparacion() {
+            const datos = obtenerArregloComparacion();
+            renderizarArreglo(document.getElementById('container-algo1'), datos, true);
+            renderizarArreglo(document.getElementById('container-algo2'), datos, true);
+            actualizarPanelComparacion(1, algo1Select.value);
+            actualizarPanelComparacion(2, algo2Select.value);
+            document.getElementById('comparison-result').innerText = '';
+        }
+
+        function nuevosDatosComparacion() {
+            generarArregloComparacion(parseInt(elementsSliderComp.value), 15, 114);
+            prepararComparacion();
+        }
+
+        // Mostrar / ocultar el panel de comparación
+        btnCompare.addEventListener('click', () => {
+            if (isSorting) return;
+            const containerComp = document.getElementById('comparison-container');
+            const isVisible = containerComp.style.display === 'flex';
+            if (isVisible) {
+                detenerComparacion();
+                containerComp.style.display = 'none';
+            } else {
+                containerComp.style.display = 'flex';
+                nuevosDatosComparacion();
+            }
+        });
+
+        // Cambiar de algoritmo deja los mismos datos, listos para volver a comparar
+        algo1Select.addEventListener('change', () => { if (!compRunning) prepararComparacion(); });
+        algo2Select.addEventListener('change', () => { if (!compRunning) prepararComparacion(); });
+
+        // Actualizar los datos al mover el slider de elementos de comparación
+        elementsSliderComp.addEventListener('input', (e) => {
+            labelElementsComp.innerText = `Elementos: ${e.target.value}`;
+            nuevosDatosComparacion();
+        });
+
+        btnCompGenerate.addEventListener('click', () => {
+            if (compRunning) return;
+            nuevosDatosComparacion();
+        });
+
+        // Manejador del Botón Iniciar Comparación con Animación y Métricas Simultáneas
+        btnCompareStart.addEventListener('click', async () => {
+            if (compRunning) return;
+            if (obtenerArregloComparacion().length === 0) generarArregloComparacion(parseInt(elementsSliderComp.value), 15, 114);
+            const datos = [...obtenerArregloComparacion()];
+            prepararComparacion();   // ambos métodos parten de los mismos datos
+
+            compRunning = true;
+            compPaused = false;
+            compPausaTotal = 0;
+            btnCompPause.innerText = "❚❚ Pausar";
+            const runId = ++compRunId;
+            bloquearControlesComp(true);
+            document.getElementById('comparison-result').innerText = "Animando y midiendo ambos métodos...";
+
+            // Se ejecutan los dos algoritmos con los mismos datos y se mide su tiempo real de cómputo
+            const metodos = [algo1Select.value, algo2Select.value].map((clave, i) => {
+                const info = ALGORITMOS[clave];
+                const { events } = info.ejecutar(datos);
+                const cpu = medirTiempoEjecucion(info.ejecutar, datos);
+                document.getElementById(`cpu-algo${i + 1}`).innerText = `${cpu.toFixed(3)} ms`;
+                return { n: i + 1, info, events };
+            });
+
+            // Animación simultánea e independiente de cada método
+            const animar = async ({ n, info, events }) => {
+                const metricas = nuevasMetricas();
+                const puntoControl = async () => {
+                    if (runId !== compRunId) throw new Error("Stopped");
+                    while (compPaused) {
+                        await esperar(100);
+                        if (runId !== compRunId) throw new Error("Stopped");
+                    }
+                };
+                const inicio = performance.now();
+                try {
+                    await reproducirEventos({
+                        contenedor: document.getElementById(`container-algo${n}`),
+                        datos: datos,
+                        eventos: events,
+                        velocidad: velocidadActual,
+                        puntoControl: puntoControl,
+                        alEvento: (evento) => {
+                            sumarMetrica(metricas, evento);
+                            mostrarMetricasComp(n, metricas);
+                        }
+                    });
+                } catch (e) {
+                    if (e.message !== "Stopped") console.error(e);
+                    return null;   // detenido con Reiniciar
+                }
+                const animacion = performance.now() - inicio - compPausaTotal;
+                document.getElementById(`time-algo${n}`).innerText = `${animacion.toFixed(0)} ms`;
+                return { nombre: info.nombre, metricas, animacion };
+            };
+
+            const [r1, r2] = await Promise.all(metodos.map(animar));
+            if (runId !== compRunId) return;   // la comparación fue reiniciada
+            if (!r1 || !r2) { detenerComparacion(); return; }
+
+            const c1 = r1.metricas.comparaciones;
+            const c2 = r2.metricas.comparaciones;
+            const menosComparaciones = c1 === c2
+                ? `Ambos hicieron ${c1} comparaciones`
+                : `Menos comparaciones: ${c1 < c2 ? r1.nombre : r2.nombre} (${Math.min(c1, c2)} contra ${Math.max(c1, c2)})`;
+            document.getElementById('comparison-result').innerText =
+                `${r1.nombre} termino con: ${r1.animacion.toFixed(0)} ms y el ${r2.nombre} termino con: ${r2.animacion.toFixed(0)} ms\n${menosComparaciones}`;
+
+            compRunning = false;
+            compPaused = false;
+            btnCompPause.innerText = "❚❚ Pausar";
+            bloquearControlesComp(false);
+        });
+
+        btnCompPause.addEventListener('click', () => {
+            if (!compRunning) return;
+            compPaused = !compPaused;
+            if (compPaused) compPauseInicio = performance.now();
+            else compPausaTotal += performance.now() - compPauseInicio;
+            btnCompPause.innerText = compPaused ? "▶ Reanudar" : "❚❚ Pausar";
+        });
+
+        btnCompReset.addEventListener('click', () => {
+            detenerComparacion();
+            prepararComparacion();   // vuelve a los mismos datos iniciales
+        });
 
         window.onload = () => {
             generateArray();
             mostrarCodigo(algorithmSelect.value);
+            mostrarInfoAlgoritmo(algorithmSelect.value);
         };
     </script>
 </body>

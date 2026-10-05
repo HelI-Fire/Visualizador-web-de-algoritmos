@@ -38,6 +38,7 @@ function quickSort(input) {
 
         events.push(
             createEvent("swap", {
+                paso: "pivote",
                 indices: [i + 1, high],
                 values: [
                     array[i + 1],
@@ -137,6 +138,7 @@ function mergeSort(input) {
 
             events.push(
                 createEvent("overwrite", {
+                    paso: "resto-izq",
                     index: k,
                     value: array[k]
                 })
@@ -153,6 +155,7 @@ function mergeSort(input) {
 
             events.push(
                 createEvent("overwrite", {
+                    paso: "resto-der",
                     index: k,
                     value: array[k]
                 })
@@ -429,9 +432,58 @@ function insertionSort(input) {
             j--;
         }
         array[j + 1] = clave;
-        events.push(createEvent("overwrite", { index: j + 1, value: clave }));
+        events.push(createEvent("overwrite", { index: j + 1, value: clave, paso: "insertar" }));
     }
 
     events.push(createEvent("finish", { array: [...array] }));
     return { array, events };
+}
+
+
+// --- REGISTRO DE ALGORITMOS ---
+// Cada entrada une la clave que usa la página con su nombre, su función (definida arriba)
+// y su complejidad temporal según la implementación de este archivo.
+const ALGORITMOS = {
+    bubble:    { nombre: 'Bubble Sort',    ejecutar: bubbleSort,    complejidad: { mejor: 'O(n²)',      promedio: 'O(n²)',      peor: 'O(n²)' } },
+    selection: { nombre: 'Selection Sort', ejecutar: selectionSort, complejidad: { mejor: 'O(n²)',      promedio: 'O(n²)',      peor: 'O(n²)' } },
+    insertion: { nombre: 'Insertion Sort', ejecutar: insertionSort, complejidad: { mejor: 'O(n)',       promedio: 'O(n²)',      peor: 'O(n²)' } },
+    gnome:     { nombre: 'Gnome Sort',     ejecutar: gnomeSort,     complejidad: { mejor: 'O(n)',       promedio: 'O(n²)',      peor: 'O(n²)' } },
+    exchange:  { nombre: 'Exchange Sort',  ejecutar: exchangeSort,  complejidad: { mejor: 'O(n²)',      promedio: 'O(n²)',      peor: 'O(n²)' } },
+    stooge:    { nombre: 'Stooge Sort',    ejecutar: stoogeSort,    complejidad: { mejor: 'O(n^2.71)',  promedio: 'O(n^2.71)',  peor: 'O(n^2.71)' } },
+    quick:     { nombre: 'Quick Sort',     ejecutar: quickSort,     complejidad: { mejor: 'O(n log n)', promedio: 'O(n log n)', peor: 'O(n²)' } },
+    merge:     { nombre: 'Merge Sort',     ejecutar: mergeSort,     complejidad: { mejor: 'O(n log n)', promedio: 'O(n log n)', peor: 'O(n log n)' } }
+};
+
+// --- MÉTRICAS ---
+// Un evento "compare" = una comparación, "swap" = un intercambio y
+// "overwrite" = una escritura (asignación) directa en el arreglo.
+function nuevasMetricas() {
+    return { comparaciones: 0, intercambios: 0, escrituras: 0 };
+}
+
+function sumarMetrica(metricas, evento) {
+    if (evento.type === "compare") metricas.comparaciones++;
+    else if (evento.type === "swap") metricas.intercambios++;
+    else if (evento.type === "overwrite") metricas.escrituras++;
+    return metricas;
+}
+
+// Cuenta todas las métricas de una lista completa de eventos
+function contarMetricas(events) {
+    const metricas = nuevasMetricas();
+    events.forEach(evento => sumarMetrica(metricas, evento));
+    return metricas;
+}
+
+// Tiempo real de cómputo del algoritmo (sin animación): promedio en ms de varias ejecuciones
+function medirTiempoEjecucion(ejecutar, datos) {
+    let repeticiones = 0;
+    const inicio = performance.now();
+    let ahora = inicio;
+    do {
+        ejecutar(datos);
+        repeticiones++;
+        ahora = performance.now();
+    } while (ahora - inicio < 20 && repeticiones < 500);
+    return (ahora - inicio) / repeticiones;
 }
