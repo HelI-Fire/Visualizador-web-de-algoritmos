@@ -57,6 +57,31 @@
         </aside>
     </div>
 
+    <!-- Tabla de estadísticas: comparaciones, intercambios y tiempo -->
+    <div id="stats-panel">
+        <div class="stats-header">
+            <h3>📊 Estadísticas de ejecución</h3>
+            <button class="btn-clear" id="btn-clear-stats">Limpiar tabla</button>
+        </div>
+        <div class="stats-scroll">
+            <table id="stats-table">
+                <thead>
+                    <tr>
+                        <th>Algoritmo</th>
+                        <th>Elementos</th>
+                        <th>Comparaciones</th>
+                        <th>Intercambios</th>
+                        <th>Tiempo</th>
+                    </tr>
+                </thead>
+                <tbody id="stats-body">
+                    <tr class="vacio-row"><td colspan="5" class="vacio">Aún no hay ejecuciones. Pulsa "Iniciar".</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <p class="stats-nota">Intercambios = cambios de lugar entre dos barras o movimientos/escrituras de un elemento (Insertion, Merge y Shell). El tiempo incluye la pausa de la animación y no cuenta el tiempo en pausa.</p>
+    </div>
+
     <!-- Panel de comparación con selectores, selector de tamaño y animación simultánea -->
     <div id="comparison-container" style="display: none; margin-top: 20px; flex-direction: column; gap: 15px; background: #181818; padding: 20px; border-radius: 8px;">
         <div style="display: flex; justify-content: center; align-items: flex-end; gap: 20px; flex-wrap: wrap;">
@@ -133,6 +158,62 @@
         let isSorting = false;
         let isPaused = false;
         let stopRequested = false;
+
+        // --- ESTADÍSTICAS: comparaciones, intercambios y tiempo ---
+        let statComp = 0, statSwap = 0, statMs = 0, statLast = 0;
+        let statTimer = null;
+        let filaStat = null;
+
+        function contarComp() { statComp++; }
+        function contarSwap() { statSwap++; }
+
+        function pintarEstadisticas() {
+            if (!filaStat) return;
+            filaStat.querySelector('.s-comp').textContent = statComp;
+            filaStat.querySelector('.s-swap').textContent = statSwap;
+            filaStat.querySelector('.s-time').textContent = Math.round(statMs) + ' ms';
+        }
+
+        function iniciarEstadisticas() {
+            statComp = 0; statSwap = 0; statMs = 0;
+            const body = document.getElementById('stats-body');
+            const vacio = body.querySelector('.vacio-row');
+            if (vacio) vacio.remove();
+
+            const nombreAlgo = algorithmSelect.options[algorithmSelect.selectedIndex].text;
+            filaStat = document.createElement('tr');
+            filaStat.classList.add('en-curso');
+            filaStat.innerHTML =
+                `<td>${nombreAlgo}</td><td>${array.length}</td>` +
+                `<td class="s-comp">0</td><td class="s-swap">0</td><td class="s-time">0 ms</td>`;
+            body.appendChild(filaStat);
+
+            statLast = performance.now();
+            clearInterval(statTimer);
+            statTimer = setInterval(() => {
+                const ahora = performance.now();
+                if (!isPaused) statMs += ahora - statLast;
+                statLast = ahora;
+                pintarEstadisticas();
+            }, 50);
+        }
+
+        function terminarEstadisticas(interrumpido) {
+            clearInterval(statTimer);
+            if (!filaStat) return;
+            const ahora = performance.now();
+            if (!isPaused) statMs += ahora - statLast;
+            pintarEstadisticas();
+            filaStat.classList.remove('en-curso');
+            if (interrumpido) filaStat.firstElementChild.textContent += ' (detenido)';
+            filaStat = null;
+        }
+
+        document.getElementById('btn-clear-stats').addEventListener('click', () => {
+            if (filaStat) return; // no limpiar mientras se ejecuta
+            document.getElementById('stats-body').innerHTML =
+                '<tr class="vacio-row"><td colspan="5" class="vacio">Aún no hay ejecuciones. Pulsa "Iniciar".</td></tr>';
+        });
 
         // --- NÚMEROS ENCIMA DE LAS BARRAS ---
         // Muestra el valor numérico de cada barra a partir de su altura
@@ -433,8 +514,10 @@
                     resaltar([2]);
                     await sleep(speed);
 
+                    contarComp();
                     if (array[j] > array[j + 1]) {
                         resaltar([3, 4, 5]);
+                        contarSwap();
                         let temp = array[j];
                         array[j] = array[j + 1];
                         array[j + 1] = temp;
@@ -464,6 +547,8 @@
                 while (j >= 0 && array[j] > key) {
                     await checkControlState();
                     resaltar([3, 4, 5]);
+                    contarComp();
+                    contarSwap();
                     bars[j].style.backgroundColor = '#3182ce';
                     bars[j + 1].style.backgroundColor = '#3182ce';
                     let speed = parseInt(speedSlider.value);
@@ -475,6 +560,7 @@
                     bars[j + 1].style.backgroundColor = '#4a5568';
                     j = j - 1;
                 }
+                if (j >= 0) contarComp();
                 resaltar([7]);
                 array[j + 1] = key;
                 bars[j + 1].style.height = `${key * 3}px`;
@@ -493,6 +579,7 @@
                 resaltar([1]);
                 for (let j = i + 1; j < n; j++) {
                     await checkControlState();
+                    contarComp();
                     resaltar(array[j] < array[minIdx] ? [2, 3, 4] : [2, 3]);
                     bars[j].style.backgroundColor = '#3182ce';
                     let speed = parseInt(speedSlider.value);
@@ -508,6 +595,7 @@
                 }
                 if (minIdx !== i) {
                     resaltar([7, 8, 9, 10]);
+                    contarSwap();
                     let temp = array[i];
                     array[i] = array[minIdx];
                     array[minIdx] = temp;
@@ -540,6 +628,7 @@
 
             while (i <= mid && j <= end) {
                 await checkControlState();
+                contarComp();
                 if (array[i] <= array[j]) {
                     tempArray.push(array[i++]);
                 } else {
@@ -554,6 +643,7 @@
                 await checkControlState();
                 let idx = start + k;
                 resaltar([17, 18]);
+                contarSwap();
                 array[idx] = tempArray[k];
                 bars[idx].style.height = `${array[idx] * 3}px`;
                 bars[idx].style.backgroundColor = '#dd6b20';
@@ -589,6 +679,7 @@
 
             for (let j = low; j <= high - 1; j++) {
                 await checkControlState();
+                contarComp();
                 resaltar(array[j] < pivot ? [10, 11, 12, 13] : [10, 11]);
                 bars[j].style.backgroundColor = '#3182ce';
                 let speed = parseInt(speedSlider.value);
@@ -596,6 +687,7 @@
 
                 if (array[j] < pivot) {
                     i++;
+                    contarSwap();
                     let temp = array[i];
                     array[i] = array[j];
                     array[j] = temp;
@@ -605,6 +697,7 @@
                 bars[j].style.backgroundColor = '#4a5568';
             }
             resaltar([16, 17]);
+            contarSwap();
             await pausaPaso();
             let temp = array[i + 1];
             array[i + 1] = array[high];
@@ -628,6 +721,7 @@
             for (let i = n - 1; i > 0; i--) {
                 await checkControlState();
                 resaltar([5, 6]);
+                contarSwap();
                 let temp = array[0];
                 array[0] = array[i];
                 array[i] = temp;
@@ -647,12 +741,13 @@
             let l = 2 * i + 1;
             let r = 2 * i + 2;
 
-            if (l < n && array[l] > array[largest]) largest = l;
-            if (r < n && array[r] > array[largest]) largest = r;
+            if (l < n) { contarComp(); if (array[l] > array[largest]) largest = l; }
+            if (r < n) { contarComp(); if (array[r] > array[largest]) largest = r; }
 
             if (largest !== i) {
                 await checkControlState();
                 resaltar([15, 16, 17]);
+                contarSwap();
                 let temp = array[i];
                 array[i] = array[largest];
                 array[largest] = temp;
@@ -684,9 +779,12 @@
 
                     resaltar(array[i - gap] > temp ? [6, 7, 9] : [6, 9]);
                     for (j = i; j >= gap && array[j - gap] > temp; j -= gap) {
+                        contarComp();
+                        contarSwap();
                         array[j] = array[j - gap];
                         bars[j].style.height = `${array[j] * 3}px`;
                     }
+                    if (j >= gap) contarComp();
                     array[j] = temp;
                     bars[j].style.height = `${temp * 3}px`;
                     await pausaPaso();
@@ -703,8 +801,10 @@
             let speed = parseInt(speedSlider.value);
             resaltar([1]);
 
+            contarComp();
             if (array[l] > array[h]) {
                 resaltar([1, 2]);
+                contarSwap();
                 let t = array[l];
                 array[l] = array[h];
                 array[h] = t;
@@ -1119,6 +1219,8 @@
 
             const selectedAlgo = algorithmSelect.value;
             mostrarCodigo(selectedAlgo);
+            iniciarEstadisticas();
+            let interrumpido = false;
             
             try {
                 if (selectedAlgo === 'bubble') await bubbleSort();
@@ -1130,9 +1232,10 @@
                 else if (selectedAlgo === 'shell') await shellSort();
                 else if (selectedAlgo === 'stooge') await stoogeSort();
             } catch (e) {
-                // Interrupción por reinicio controlada
+                interrumpido = true; // Interrupción por reinicio controlada
             }
             limpiarResaltado();
+            terminarEstadisticas(interrumpido);
 
             isSorting = false;
             elementsSlider.disabled = false;
@@ -1182,4 +1285,3 @@
     </script>
 </body>
 </html>
-
