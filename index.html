@@ -19,13 +19,13 @@
             <label for="algorithm">Algoritmo</label>
             <select id="algorithm">
                 <option value="bubble">Bubble Sort</option>
-                <option value="insertion">Insertion Sort</option>
                 <option value="selection">Selection Sort</option>
-                <option value="merge">Merge Sort</option>
-                <option value="quick">Quick Sort</option>
-                <option value="heap">Heap Sort</option>
-                <option value="shell">Shell Sort</option>
+                <option value="insertion">Insertion Sort</option>
+                <option value="gnome">Gnome Sort</option>
+                <option value="exchange">Exchange Sort</option>
                 <option value="stooge">Stooge Sort</option>
+                <option value="quick">Quick Sort</option>
+                <option value="merge">Merge Sort</option>
             </select>
         </div>
 
@@ -79,7 +79,7 @@
                 </tbody>
             </table>
         </div>
-        <p class="stats-nota">Intercambios = cambios de lugar entre dos barras o movimientos/escrituras de un elemento (Insertion, Merge y Shell). El tiempo incluye la pausa de la animación y no cuenta el tiempo en pausa.</p>
+        <p class="stats-nota">Intercambios = cambios de lugar entre dos barras o movimientos/escrituras de un elemento (Insertion y Merge). El tiempo incluye la pausa de la animación y no cuenta el tiempo en pausa.</p>
     </div>
 
     <!-- Panel de comparación con selectores, selector de tamaño y animación simultánea -->
@@ -88,27 +88,27 @@
             <div class="control-group">
                 <label for="algo1-select">Método 1:</label>
                 <select id="algo1-select">
-                    <option value="bubble">Bubble Sort</option>
-                    <option value="insertion">Insertion Sort</option>
-                    <option value="selection">Selection Sort</option>
-                    <option value="merge">Merge Sort</option>
-                    <option value="quick">Quick Sort</option>
-                    <option value="heap">Heap Sort</option>
-                    <option value="shell">Shell Sort</option>
-                    <option value="stooge">Stooge Sort</option>
+                <option value="bubble">Bubble Sort</option>
+                <option value="selection">Selection Sort</option>
+                <option value="insertion">Insertion Sort</option>
+                <option value="gnome">Gnome Sort</option>
+                <option value="exchange">Exchange Sort</option>
+                <option value="stooge">Stooge Sort</option>
+                <option value="quick">Quick Sort</option>
+                <option value="merge">Merge Sort</option>
                 </select>
             </div>
             <div class="control-group">
                 <label for="algo2-select">Método 2:</label>
                 <select id="algo2-select">
-                    <option value="quick">Quick Sort</option>
-                    <option value="bubble">Bubble Sort</option>
-                    <option value="insertion">Insertion Sort</option>
-                    <option value="selection">Selection Sort</option>
-                    <option value="merge">Merge Sort</option>
-                    <option value="heap">Heap Sort</option>
-                    <option value="shell">Shell Sort</option>
-                    <option value="stooge">Stooge Sort</option>
+                <option value="quick">Quick Sort</option>
+                <option value="bubble">Bubble Sort</option>
+                <option value="selection">Selection Sort</option>
+                <option value="insertion">Insertion Sort</option>
+                <option value="gnome">Gnome Sort</option>
+                <option value="exchange">Exchange Sort</option>
+                <option value="stooge">Stooge Sort</option>
+                <option value="merge">Merge Sort</option>
                 </select>
             </div>
             <div class="control-group">
@@ -405,47 +405,35 @@
                     /*19*/ '}'
                 ]
             },
-            heap: {
-                titulo: 'Heap Sort',
+            gnome: {
+                titulo: 'Gnome Sort',
                 lineas: [
-                    /*0*/ 'function heapSort() {',
-                    /*1*/ '  // 1) construir el heap máximo',
-                    /*2*/ '  for (let i = Math.floor(n / 2) - 1; i >= 0; i--)',
-                    /*3*/ '    heapify(n, i);',
-                    /*4*/ '  // 2) mover el máximo al final y reacomodar',
-                    /*5*/ '  for (let i = n - 1; i > 0; i--) {',
-                    /*6*/ '    [array[0], array[i]] = [array[i], array[0]];',
-                    /*7*/ '    heapify(i, 0);',
-                    /*8*/ '  }',
-                    /*9*/ '}',
-                    /*10*/ 'function heapify(n, i) {',
-                    /*11*/ '  let largest = i;',
-                    /*12*/ '  let l = 2 * i + 1, r = 2 * i + 2;',
-                    /*13*/ '  if (l < n && array[l] > array[largest]) largest = l;',
-                    /*14*/ '  if (r < n && array[r] > array[largest]) largest = r;',
-                    /*15*/ '  if (largest !== i) {',
-                    /*16*/ '    [array[i], array[largest]] = [array[largest], array[i]];',
-                    /*17*/ '    heapify(n, largest);',
-                    /*18*/ '  }',
-                    /*19*/ '}'
+                    /*0*/ 'function gnomeSort() {',
+                    /*1*/ '  let i = 0;',
+                    /*2*/ '  while (i < n) {',
+                    /*3*/ '    if (i === 0 || array[i] >= array[i - 1]) {',
+                    /*4*/ '      i++;',
+                    /*5*/ '    } else {',
+                    /*6*/ '      [array[i], array[i - 1]] = [array[i - 1], array[i]];',
+                    /*7*/ '      i--;',
+                    /*8*/ '    }',
+                    /*9*/ '  }',
+                    /*10*/ '}'
                 ]
             },
-            shell: {
-                titulo: 'Shell Sort',
+            exchange: {
+                titulo: 'Exchange Sort',
                 lineas: [
-                    /*0*/ 'function shellSort() {',
-                    /*1*/ '  for (let gap = Math.floor(n / 2); gap > 0;',
-                    /*2*/ '           gap = Math.floor(gap / 2)) {',
-                    /*3*/ '    for (let i = gap; i < n; i++) {',
-                    /*4*/ '      let temp = array[i];',
-                    /*5*/ '      let j;',
-                    /*6*/ '      for (j = i; j >= gap && array[j - gap] > temp; j -= gap) {',
-                    /*7*/ '        array[j] = array[j - gap];',
-                    /*8*/ '      }',
-                    /*9*/ '      array[j] = temp;',
-                    /*10*/ '    }',
-                    /*11*/ '  }',
-                    /*12*/ '}'
+                    /*0*/ 'for (let i = 0; i < n - 1; i++) {',
+                    /*1*/ '  for (let j = i + 1; j < n; j++) {',
+                    /*2*/ '    if (array[i] > array[j]) {',
+                    /*3*/ '      let temp = array[i];',
+                    /*4*/ '      array[i] = array[j];',
+                    /*5*/ '      array[j] = temp;',
+                    /*6*/ '    }',
+                    /*7*/ '  }',
+                    /*8*/ '  // array[i] ya quedó en su lugar',
+                    /*9*/ '}'
                 ]
             },
             stooge: {
@@ -734,90 +722,80 @@
             return (i + 1);
         }
 
-        // --- 6. HEAP SORT ---
-        async function heapSort() {
+        // --- 6. GNOME SORT ---
+        async function gnomeSort() {
             const bars = document.getElementsByClassName('bar');
             let n = array.length;
-
-            for (let i = Math.floor(n / 2) - 1; i >= 0; i--) {
-                resaltar([2, 3]);
-                await heapify(n, i);
-            }
-
-            for (let i = n - 1; i > 0; i--) {
+            let i = 0;
+            while (i < n) {
                 await checkControlState();
-                resaltar([5, 6]);
-                contarSwap();
-                let temp = array[0];
-                array[0] = array[i];
-                array[i] = temp;
-                bars[0].style.height = `${array[0] * 3}px`;
-                bars[i].style.height = `${array[i] * 3}px`;
-                bars[i].style.backgroundColor = '#38a169';
-                await pausaPaso();
-                resaltar([7]);
-                await heapify(i, 0);
-            }
-            bars[0].style.backgroundColor = '#38a169';
-        }
-
-        async function heapify(n, i) {
-            const bars = document.getElementsByClassName('bar');
-            let largest = i;
-            let l = 2 * i + 1;
-            let r = 2 * i + 2;
-
-            if (l < n) { contarComp(); if (array[l] > array[largest]) largest = l; }
-            if (r < n) { contarComp(); if (array[r] > array[largest]) largest = r; }
-
-            if (largest !== i) {
-                await checkControlState();
-                resaltar([15, 16, 17]);
-                contarSwap();
-                let temp = array[i];
-                array[i] = array[largest];
-                array[largest] = temp;
-                bars[i].style.height = `${array[i] * 3}px`;
-                bars[largest].style.height = `${array[largest] * 3}px`;
+                if (i === 0) {
+                    resaltar([3, 4]);
+                    i++;
+                    continue;
+                }
+                contarComp();
                 bars[i].style.backgroundColor = '#3182ce';
-                bars[largest].style.backgroundColor = '#3182ce';
+                bars[i - 1].style.backgroundColor = '#3182ce';
                 let speed = parseInt(speedSlider.value);
+                resaltar([3]);
                 await sleep(speed);
-                bars[i].style.backgroundColor = '#4a5568';
-                bars[largest].style.backgroundColor = '#4a5568';
-                await heapify(n, largest);
-            }
-        }
 
-        // --- 7. SHELL SORT ---
-        async function shellSort() {
-            const bars = document.getElementsByClassName('bar');
-            let n = array.length;
-            for (let gap = Math.floor(n / 2); gap > 0; gap = Math.floor(gap / 2)) {
-                for (let i = gap; i < n; i++) {
-                    let temp = array[i];
-                    let j;
-                    await checkControlState();
-                    bars[i].style.backgroundColor = '#d69e2e';
-                    let speed = parseInt(speedSlider.value);
-                    resaltar([3, 4, 5]);
-                    await sleep(speed);
-
-                    resaltar(array[i - gap] > temp ? [6, 7, 9] : [6, 9]);
-                    for (j = i; j >= gap && array[j - gap] > temp; j -= gap) {
-                        contarComp();
-                        contarSwap();
-                        array[j] = array[j - gap];
-                        bars[j].style.height = `${array[j] * 3}px`;
-                    }
-                    if (j >= gap) contarComp();
-                    array[j] = temp;
-                    bars[j].style.height = `${temp * 3}px`;
-                    await pausaPaso();
+                if (array[i] >= array[i - 1]) {
+                    resaltar([3, 4]);
                     bars[i].style.backgroundColor = '#4a5568';
+                    bars[i - 1].style.backgroundColor = '#4a5568';
+                    i++;
+                } else {
+                    resaltar([5, 6, 7]);
+                    contarSwap();
+                    let temp = array[i];
+                    array[i] = array[i - 1];
+                    array[i - 1] = temp;
+                    bars[i].style.height = `${array[i] * 3}px`;
+                    bars[i - 1].style.height = `${array[i - 1] * 3}px`;
+                    bars[i].style.backgroundColor = '#dd6b20';
+                    bars[i - 1].style.backgroundColor = '#dd6b20';
+                    await sleep(speed);
+                    bars[i].style.backgroundColor = '#4a5568';
+                    bars[i - 1].style.backgroundColor = '#4a5568';
+                    i--;
                 }
             }
-            for (let i = 0; i < bars.length; i++) bars[i].style.backgroundColor = '#38a169';
+            for (let k = 0; k < bars.length; k++) bars[k].style.backgroundColor = '#38a169';
+        }
+
+        // --- 7. EXCHANGE SORT ---
+        async function exchangeSort() {
+            const bars = document.getElementsByClassName('bar');
+            let n = array.length;
+            for (let i = 0; i < n - 1; i++) {
+                bars[i].style.backgroundColor = '#d69e2e';
+                resaltar([0]);
+                for (let j = i + 1; j < n; j++) {
+                    await checkControlState();
+                    contarComp();
+                    bars[j].style.backgroundColor = '#3182ce';
+                    let speed = parseInt(speedSlider.value);
+                    resaltar([1, 2]);
+                    await sleep(speed);
+
+                    if (array[i] > array[j]) {
+                        resaltar([3, 4, 5]);
+                        contarSwap();
+                        let temp = array[i];
+                        array[i] = array[j];
+                        array[j] = temp;
+                        bars[i].style.height = `${array[i] * 3}px`;
+                        bars[j].style.height = `${array[j] * 3}px`;
+                        bars[j].style.backgroundColor = '#dd6b20';
+                        await sleep(speed);
+                    }
+                    bars[j].style.backgroundColor = '#4a5568';
+                }
+                bars[i].style.backgroundColor = '#38a169';
+            }
+            bars[n - 1].style.backgroundColor = '#38a169';
         }
 
         // --- 8. STOOGE SORT ---
@@ -1108,44 +1086,39 @@
                 }
                 await mSort(0, a.length - 1);
                 for (let bar of bars) bar.style.backgroundColor = '#38a169';
-            } else if (nombre === 'heap') {
-                let n = a.length;
-                async function heapify(n, i) {
-                    let largest = i;
-                    let l = 2 * i + 1, r = 2 * i + 2;
-                    if (l < n) { stats.comp++; if (a[l] > a[largest]) largest = l; }
-                    if (r < n) { stats.comp++; if (a[r] > a[largest]) largest = r; }
-                    if (largest !== i) {
-                        await swapBars(i, largest);
-                        await heapify(n, largest);
+            } else if (nombre === 'gnome') {
+                let i = 0;
+                while (i < a.length) {
+                    if (i === 0) { i++; continue; }
+                    stats.comp++;
+                    bars[i].style.backgroundColor = '#3182ce';
+                    bars[i - 1].style.backgroundColor = '#3182ce';
+                    await compSleep(speed, runId);
+                    bars[i].style.backgroundColor = '#4a5568';
+                    bars[i - 1].style.backgroundColor = '#4a5568';
+                    if (a[i] >= a[i - 1]) {
+                        i++;
+                    } else {
+                        await swapBars(i, i - 1);
+                        i--;
                     }
                 }
-                for (let i = Math.floor(n / 2) - 1; i >= 0; i--) await heapify(n, i);
-                for (let i = n - 1; i > 0; i--) {
-                    await swapBars(0, i);
-                    bars[i].style.backgroundColor = '#38a169';
-                    await heapify(i, 0);
-                }
-                bars[0].style.backgroundColor = '#38a169';
-            } else if (nombre === 'shell') {
+                for (let bar of bars) bar.style.backgroundColor = '#38a169';
+            } else if (nombre === 'exchange') {
                 let n = a.length;
-                for (let gap = Math.floor(n / 2); gap > 0; gap = Math.floor(gap / 2)) {
-                    for (let i = gap; i < n; i++) {
-                        let temp = a[i];
-                        let j;
-                        bars[i].style.backgroundColor = '#d69e2e';
+                for (let i = 0; i < n - 1; i++) {
+                    bars[i].style.backgroundColor = '#d69e2e';
+                    for (let j = i + 1; j < n; j++) {
+                        stats.comp++;
+                        bars[j].style.backgroundColor = '#3182ce';
                         await compSleep(speed, runId);
-                        for (j = i; j >= gap && a[j - gap] > temp; j -= gap) {
-                            stats.comp++;
-                            stats.swap++;
-                            a[j] = a[j - gap];
-                            bars[j].style.height = `${(a[j] / max) * 100}%`;
+                        bars[j].style.backgroundColor = '#4a5568';
+                        if (a[i] > a[j]) {
+                            await swapBars(i, j);
+                            bars[i].style.backgroundColor = '#d69e2e';
                         }
-                        if (j >= gap) stats.comp++;
-                        a[j] = temp;
-                        bars[j].style.height = `${(temp / max) * 100}%`;
-                        bars[i].style.backgroundColor = '#4a5568';
                     }
+                    bars[i].style.backgroundColor = '#38a169';
                 }
                 for (let bar of bars) bar.style.backgroundColor = '#38a169';
             } else if (nombre === 'stooge') {
@@ -1306,8 +1279,8 @@
                 else if (selectedAlgo === 'selection') await selectionSort();
                 else if (selectedAlgo === 'merge') await mergeSort();
                 else if (selectedAlgo === 'quick') await quickSort();
-                else if (selectedAlgo === 'heap') await heapSort();
-                else if (selectedAlgo === 'shell') await shellSort();
+                else if (selectedAlgo === 'gnome') await gnomeSort();
+                else if (selectedAlgo === 'exchange') await exchangeSort();
                 else if (selectedAlgo === 'stooge') await stoogeSort();
             } catch (e) {
                 interrumpido = true; // Interrupción por reinicio controlada
