@@ -132,6 +132,32 @@
                 <div id="container-algo2" style="display: flex; align-items: flex-end; justify-content: center; height: 250px; gap: 2px;"></div>
             </div>
         </div>
+        <div class="stats-scroll">
+            <table id="comp-stats-table">
+                <thead>
+                    <tr>
+                        <th>Método</th>
+                        <th>Comparaciones</th>
+                        <th>Intercambios</th>
+                        <th>Tiempo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td id="cs-name-1">Método 1</td>
+                        <td id="cs-comp-1">0</td>
+                        <td id="cs-swap-1">0</td>
+                        <td id="cs-time-1">0 ms</td>
+                    </tr>
+                    <tr>
+                        <td id="cs-name-2">Método 2</td>
+                        <td id="cs-comp-2">0</td>
+                        <td id="cs-swap-2">0</td>
+                        <td id="cs-time-2">0 ms</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
         <div id="comparison-result" style="text-align: center; font-size: 18px; font-weight: bold; color: #38a169;"></div>
     </div>
 
@@ -834,6 +860,24 @@
         // --- CONTROL INDEPENDIENTE DE LA COMPARACIÓN (pausar / reiniciar) ---
         const btnCompPause = document.getElementById('btn-comp-pause');
         const btnCompReset = document.getElementById('btn-comp-reset');
+        let compStatTimer = null;    // actualiza la tabla de comparación en vivo
+
+        function pintarStatsComp(st1, st2) {
+            [[st1, 1], [st2, 2]].forEach(([st, n]) => {
+                document.getElementById('cs-name-' + n).textContent = st.nombre;
+                document.getElementById('cs-comp-' + n).textContent = st.comp;
+                document.getElementById('cs-swap-' + n).textContent = st.swap;
+                document.getElementById('cs-time-' + n).textContent = Math.round(st.ms) + ' ms';
+            });
+        }
+
+        function limpiarStatsComp() {
+            pintarStatsComp(
+                { nombre: 'Método 1', comp: 0, swap: 0, ms: 0 },
+                { nombre: 'Método 2', comp: 0, swap: 0, ms: 0 }
+            );
+        }
+
         let compRunning = false;     // hay una comparación animándose
         let compPaused = false;      // la comparación está en pausa
         let compRunId = 0;           // identifica la ejecución vigente; al cambiar, las anteriores se cancelan
@@ -861,6 +905,7 @@
         // Cancela cualquier comparación en curso y deja los controles listos
         function detenerComparacion() {
             compRunId++;
+            clearInterval(compStatTimer);
             compRunning = false;
             compPaused = false;
             btnCompPause.innerText = "❚❚ Pausar";
@@ -899,6 +944,7 @@
             }
             document.getElementById('time-algo1').innerText = 'Tiempo: 0 ms';
             document.getElementById('time-algo2').innerText = 'Tiempo: 0 ms';
+            limpiarStatsComp();
             document.getElementById('comparison-result').innerText = '';
         });
 
@@ -923,7 +969,7 @@
         }
 
         // Función simuladora animada para cualquier algoritmo en el panel de comparación
-        async function animarAlgoritmoComparacion(nombre, arr, containerId, runId) {
+        async function animarAlgoritmoComparacion(nombre, arr, containerId, runId, stats) {
             let a = [...arr];
             const cont = document.getElementById(containerId);
             cont.innerHTML = '';
@@ -941,6 +987,7 @@
 
             async function swapBars(i, j) {
                 let temp = a[i]; a[i] = a[j]; a[j] = temp;
+                stats.swap++;
                 bars[i].style.height = `${(a[i] / max) * 100}%`;
                 bars[j].style.height = `${(a[j] / max) * 100}%`;
                 bars[i].style.backgroundColor = '#dd6b20';
@@ -952,6 +999,7 @@
 
             async function setBar(idx, val) {
                 a[idx] = val;
+                stats.swap++;
                 bars[idx].style.height = `${(val / max) * 100}%`;
                 bars[idx].style.backgroundColor = '#3182ce';
                 await compSleep(speed, runId);
@@ -966,6 +1014,7 @@
                         bars[j].style.backgroundColor = '#3182ce';
                         bars[j + 1].style.backgroundColor = '#3182ce';
                         await compSleep(speed, runId);
+                        stats.comp++;
                         if (a[j] > a[j + 1]) await swapBars(j, j + 1);
                         bars[j].style.backgroundColor = '#4a5568';
                         bars[j + 1].style.backgroundColor = '#4a5568';
@@ -979,11 +1028,14 @@
                     bars[i].style.backgroundColor = '#d69e2e';
                     await compSleep(speed, runId);
                     while (j >= 0 && a[j] > key) {
+                        stats.comp++;
+                        stats.swap++;
                         a[j + 1] = a[j];
                         bars[j + 1].style.height = `${(a[j + 1] / max) * 100}%`;
                         j--;
                         await compSleep(speed, runId);
                     }
+                    if (j >= 0) stats.comp++;
                     a[j + 1] = key;
                     bars[j + 1].style.height = `${(key / max) * 100}%`;
                     bars[i].style.backgroundColor = '#4a5568';
@@ -997,6 +1049,7 @@
                     for (let j = i + 1; j < n; j++) {
                         bars[j].style.backgroundColor = '#3182ce';
                         await compSleep(speed, runId);
+                        stats.comp++;
                         if (a[j] < a[minIdx]) {
                             bars[minIdx].style.backgroundColor = '#4a5568';
                             minIdx = j;
@@ -1018,6 +1071,7 @@
                         for (let j = low; j <= high - 1; j++) {
                             bars[j].style.backgroundColor = '#3182ce';
                             await compSleep(speed, runId);
+                            stats.comp++;
                             if (a[j] < pivot) {
                                 i++;
                                 await swapBars(i, j);
@@ -1042,6 +1096,7 @@
                     let tempArr = [];
                     let i = start, j = mid + 1;
                     while (i <= mid && j <= end) {
+                        stats.comp++;
                         if (a[i] <= a[j]) tempArr.push(a[i++]);
                         else tempArr.push(a[j++]);
                     }
@@ -1058,8 +1113,8 @@
                 async function heapify(n, i) {
                     let largest = i;
                     let l = 2 * i + 1, r = 2 * i + 2;
-                    if (l < n && a[l] > a[largest]) largest = l;
-                    if (r < n && a[r] > a[largest]) largest = r;
+                    if (l < n) { stats.comp++; if (a[l] > a[largest]) largest = l; }
+                    if (r < n) { stats.comp++; if (a[r] > a[largest]) largest = r; }
                     if (largest !== i) {
                         await swapBars(i, largest);
                         await heapify(n, largest);
@@ -1081,9 +1136,12 @@
                         bars[i].style.backgroundColor = '#d69e2e';
                         await compSleep(speed, runId);
                         for (j = i; j >= gap && a[j - gap] > temp; j -= gap) {
+                            stats.comp++;
+                            stats.swap++;
                             a[j] = a[j - gap];
                             bars[j].style.height = `${(a[j] / max) * 100}%`;
                         }
+                        if (j >= gap) stats.comp++;
                         a[j] = temp;
                         bars[j].style.height = `${(temp / max) * 100}%`;
                         bars[i].style.backgroundColor = '#4a5568';
@@ -1092,6 +1150,7 @@
                 for (let bar of bars) bar.style.backgroundColor = '#38a169';
             } else if (nombre === 'stooge') {
                 async function sSort(l, h) {
+                    stats.comp++;
                     if (a[l] > a[h]) await swapBars(l, h);
                     if (h - l + 1 > 2) {
                         let t = Math.floor((h - l + 1) / 3);
@@ -1126,6 +1185,7 @@
             const val = e.target.value;
             labelElementsComp.innerText = `Elementos: ${val}`;
             compBaseData = [];
+            limpiarStatsComp();
             generarBarrasComparacion(val, 'container-algo1');
             generarBarrasComparacion(val, 'container-algo2');
             document.getElementById('comparison-result').innerText = '';
@@ -1168,35 +1228,53 @@
             let time1 = 0;
             let time2 = 0;
 
+            const stats1 = { nombre: name1, comp: 0, swap: 0, ms: 0, done: false, inicio: performance.now() };
+            const stats2 = { nombre: name2, comp: 0, swap: 0, ms: 0, done: false, inicio: performance.now() };
+            clearInterval(compStatTimer);
+            compStatTimer = setInterval(() => {
+                const ahora = performance.now();
+                const pausaActual = compPaused ? ahora - compPauseInicio : 0;
+                [stats1, stats2].forEach(st => {
+                    if (!st.done) st.ms = ahora - st.inicio - compPausaTotal - pausaActual;
+                });
+                pintarStatsComp(stats1, stats2);
+            }, 50);
+
             // Ejecución simultánea e independiente para Método 1
             const promesa1 = (async () => {
                 let tStart = performance.now();
                 try {
-                    await animarAlgoritmoComparacion(algo1Name, [...baseData], 'container-algo1', runId);
+                    await animarAlgoritmoComparacion(algo1Name, [...baseData], 'container-algo1', runId, stats1);
                 } catch (e) {
                     return; // detenido con Reiniciar
                 }
                 let tEnd = performance.now();
                 time1 = (tEnd - tStart - compPausaTotal).toFixed(2);
                 document.getElementById('time-algo1').innerText = `Tiempo: ${time1} ms`;
+                stats1.ms = parseFloat(time1);
+                stats1.done = true;
             })();
 
             // Ejecución simultánea e independiente para Método 2
             const promesa2 = (async () => {
                 let tStart = performance.now();
                 try {
-                    await animarAlgoritmoComparacion(algo2Name, [...baseData], 'container-algo2', runId);
+                    await animarAlgoritmoComparacion(algo2Name, [...baseData], 'container-algo2', runId, stats2);
                 } catch (e) {
                     return; // detenido con Reiniciar
                 }
                 let tEnd = performance.now();
                 time2 = (tEnd - tStart - compPausaTotal).toFixed(2);
                 document.getElementById('time-algo2').innerText = `Tiempo: ${time2} ms`;
+                stats2.ms = parseFloat(time2);
+                stats2.done = true;
             })();
 
             // Esperar a que ambos terminen para emitir el mensaje final
             await Promise.all([promesa1, promesa2]);
             if (runId !== compRunId) return; // la comparación fue reiniciada
+            clearInterval(compStatTimer);
+            pintarStatsComp(stats1, stats2);
 
             const resText = document.getElementById('comparison-result');
             resText.innerText = `${name1} termino con: ${time1} ms y el ${name2} termino con: ${time2} ms`;
