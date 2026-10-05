@@ -48,3 +48,29 @@ function reiniciarArreglo() {
 function obtenerArregloActual() {
     return arregloActual;
 }
+
+// --- DATOS DE LA COMPARACIÓN ---
+// Los dos métodos comparados usan exactamente este mismo arreglo.
+let arregloComparacion = [];
+
+/**
+ * Genera el arreglo que compartirán los dos métodos de la comparación.
+ * @returns {Array} El nuevo arreglo generado.
+ */
+function generarArregloComparacion(tamano = 15, min = 15, max = 114) {
+    arregloComparacion = [];
+
+    for (let i = 0; i < tamano; i++) {
+        arregloComparacion.push(Math.floor(Math.random() * (max - min + 1)) + min);
+    }
+
+    return arregloComparacion;
+}
+
+/**
+ * Obtiene el arreglo actual de la comparación.
+ * @returns {Array}
+ */
+function obtenerArregloComparacion() {
+    return arregloComparacion;
+}
