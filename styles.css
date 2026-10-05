@@ -110,7 +110,7 @@ button:disabled {
     top: -16px;
     left: 50%;
     transform: translateX(-50%);
-    font-size: var(--tam-valor, 10px);
+    font-size: 10px;
     color: #e2e8f0;
     pointer-events: none;
 }
@@ -189,7 +189,6 @@ button:disabled {
     color: #ffffff;
 }
 
-<<<<<<< HEAD
 /* Tabla de estadísticas */
 #stats-panel {
     margin-top: 20px;
@@ -250,96 +249,4 @@ button:disabled {
     margin: 10px 0 0;
     font-size: 12px;
     color: #718096;
-=======
-/* Nombre, complejidad y métricas del algoritmo seleccionado */
-#info-algoritmo {
-    background-color: #1e1e1e;
-    padding: 12px 20px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    text-align: center;
-}
-
-#info-algoritmo h2 {
-    margin: 0 0 6px;
-    font-size: 20px;
-}
-
-#info-algoritmo p {
-    margin: 4px 0;
-    font-size: 14px;
-    color: #b0b0b0;
-}
-
-/* Panel de comparación */
-#comparison-container {
-    margin-top: 20px;
-    flex-direction: column;
-    gap: 15px;
-    background-color: #181818;
-    padding: 20px;
-    border-radius: 8px;
-}
-
-.comp-controles {
-    display: flex;
-    justify-content: center;
-    align-items: flex-end;
-    gap: 20px;
-    flex-wrap: wrap;
-}
-
-.comp-paneles {
-    display: flex;
-    gap: 20px;
-    justify-content: space-around;
-    flex-wrap: wrap;
-}
-
-.comp-panel {
-    flex: 1;
-    min-width: 250px;
-    background-color: #121212;
-    padding: 15px;
-    border-radius: 8px;
-    text-align: center;
-}
-
-.comp-panel h3 {
-    margin: 0 0 6px;
-}
-
-.comp-complejidad {
-    margin: 4px 0;
-    font-size: 13px;
-    color: #b0b0b0;
-}
-
-.comp-metricas {
-    list-style: none;
-    padding: 0;
-    margin: 8px 0 12px;
-    font-size: 14px;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 4px 16px;
-}
-
-.bars-comp {
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-    height: 250px;
-    gap: 2px;
-    padding-top: 20px; /* espacio para el número de la barra más alta */
-}
-
-#comparison-result {
-    text-align: center;
-    font-size: 18px;
-    font-weight: bold;
-    color: #38a169;
-    white-space: pre-line;
->>>>>>> 65492aa8384b2a678ed0e27ee94c45a22dcd5b02
 }
