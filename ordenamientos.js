@@ -366,7 +366,6 @@ function stoogeSort(input) {
         events
     };
 }
-// --- ADAPTACIÓN DE LOS 3 ALGORITMOS DE FUERZA BRUTA CON SISTEMA DE EVENTOS ---
 
 function bubbleSort(input) {
     const array = [...input];

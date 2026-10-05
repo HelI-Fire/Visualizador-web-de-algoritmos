@@ -4,158 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Visualizador de 8 Algoritmos de Ordenamiento</title>
-    <style>
-        body {
-            background-color: #121212;
-            color: #ffffff;
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-        }
-        header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        /* Panel de control superior */
-        .control-panel {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            justify-content: center;
-            gap: 20px;
-            background-color: #1e1e1e;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 30px;
-        }
-        .control-group {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-        .control-group label {
-            font-size: 14px;
-            color: #b0b0b0;
-        }
-        select, input[type="range"] {
-            background-color: #2a2a2a;
-            color: #ffffff;
-            border: 1px solid #444;
-            padding: 8px 12px;
-            border-radius: 6px;
-            outline: none;
-            font-size: 14px;
-        }
-        select {
-            cursor: pointer;
-        }
-        /* Botones de acción */
-        .btn-container {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        button {
-            padding: 10px 16px;
-            border: none;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 14px;
-            color: #fff;
-            transition: opacity 0.2s;
-        }
-        button:hover {
-            opacity: 0.85;
-        }
-        button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        .btn-generate { background-color: #2d3748; }
-        .btn-start { background-color: #dd6b20; }
-        .btn-pause { background-color: #d69e2e; color: #121212; }
-        .btn-reset { background-color: #9b2c2c; }
-        .btn-compare { background-color: #3182ce; }
-        .btn-compare-start { background-color: #38a169; margin-top: 10px; }
-
-        /* Área de visualización de barras */
-        #array-container {
-            display: flex;
-            align-items: flex-end;
-            justify-content: center;
-            height: 350px;
-            gap: 4px;
-            padding: 20px;
-            background-color: #181818;
-            border-radius: 8px;
-        }
-        .bar {
-            background-color: #4a5568;
-            width: 25px;
-            display: inline-block;
-            transition: height 0.05s ease;
-        }
-
-        /* Zona principal: barras a la izquierda, código a la derecha */
-        .main-area {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            align-items: flex-start;
-        }
-        .main-area #array-container {
-            flex: 1 1 480px;
-            min-width: 0;
-        }
-        /* Panel de código del algoritmo */
-        #code-panel {
-            flex: 0 1 460px;
-            min-width: 300px;
-            height: 390px;
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-            background-color: #181818;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        #code-title {
-            padding: 10px 14px;
-            background-color: #2d3748;
-            font-weight: bold;
-            font-size: 14px;
-        }
-        #code-body {
-            flex: 1;
-            overflow: auto;
-            position: relative;
-            padding: 8px 0;
-            font-family: Consolas, "Courier New", monospace;
-            font-size: 12px;
-        }
-        .code-line {
-            display: flex;
-            white-space: pre;
-            line-height: 18px;
-            padding-right: 12px;
-            border-left: 3px solid transparent;
-            color: #e2e8f0;
-        }
-        .code-line .code-num {
-            flex: 0 0 28px;
-            text-align: right;
-            margin-right: 10px;
-            color: #718096;
-            user-select: none;
-        }
-        .code-line.code-comment { color: #718096; }
-        .code-line.activa {
-            background-color: rgba(221, 107, 32, 0.30);
-            border-left-color: #dd6b20;
-            color: #ffffff;
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
@@ -285,6 +134,26 @@
         let isPaused = false;
         let stopRequested = false;
 
+        // --- NÚMEROS ENCIMA DE LAS BARRAS ---
+        // Muestra el valor numérico de cada barra a partir de su altura
+        function etiquetar(bar) {
+            const v = Math.round(parseFloat(bar.style.height) / 3);
+            let s = bar.querySelector('.valor');
+            if (!s) {
+                s = document.createElement('span');
+                s.className = 'valor';
+                bar.appendChild(s);
+            }
+            s.textContent = v;
+        }
+
+        // Cada vez que una barra cambie de altura, actualiza su número
+        new MutationObserver(muts => {
+            muts.forEach(m => {
+                if (m.target.classList.contains('bar')) etiquetar(m.target);
+            });
+        }).observe(container, { attributes: true, attributeFilter: ['style'], subtree: true });
+
         function sleep(ms) {
             return new Promise(resolve => setTimeout(resolve, ms));
         }
@@ -314,6 +183,7 @@
                 bar.classList.add('bar');
                 bar.style.height = `${value * 3}px`;
                 container.appendChild(bar);
+                etiquetar(bar);
             }
             originalArray = [...array];
         }
@@ -1312,3 +1182,4 @@
     </script>
 </body>
 </html>
+
